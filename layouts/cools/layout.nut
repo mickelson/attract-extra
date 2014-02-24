@@ -1,6 +1,6 @@
 fe.layout.width=640;
 fe.layout.height=480;
-fe.layout.font="COOLVETI";
+fe.layout.font="coolvetica";
 
 // GPS
 local wheelx = 10;
