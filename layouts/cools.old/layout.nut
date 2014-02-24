@@ -1,6 +1,6 @@
 fe.layout.width=640;
 fe.layout.height=480;
-fe.layout.font="COOLVETI";
+fe.layout.font="coolvetica";
 
 // GPS
 local wheelx = 10;
@@ -16,27 +16,18 @@ function trimmed_name( index_offset ) {
     return "";
 }
 
-function trimmed_copy( index_offset ) {
+function trimmed_man( index_offset ) {
     local s = split( fe.game_info( Info.Manufacturer, index_offset ), "(" );
     if ( s.len() > 0 )
-        return "© " + fe.game_info( Info.Year, index_offset ) + " " + s[0];
+        return s[0];
     return "";
 }
-
-// Gives us a nice high random number for the RGB levels
-function brightrand() {
-	return 255-(rand()/255);
-}
-
-local red = brightrand();
-local green = brightrand();
-local blue = brightrand();
 
 // Game snapshot
 local snap = fe.add_artwork( "snap", -80, -60, 800, 600);
 
 // Game title box
-local titlebg = fe.add_image ("mask.png", 0, 0, fe.layout.width, fe.layout.height);
+local titlebg = fe.add_image ("mask.png", 0, 380, fe.layout.width, 120)
 titlebg.set_rgb (0,0,0);
 
 // Game flyer
@@ -56,22 +47,19 @@ romlist.style = Style.Bold;
 local filter = fe.add_text( "[ListFilterName]", 5, 20, fe.layout.width - 5, 20 );
 filter.align = Align.Right;
 filter.style = Style.Bold;
-local details = fe.add_text( "[ListEntry]/[ListSize]", 0, 0, fe.layout.width, 16 );
-details.align = Align.Right;
-details.style = Style.Bold;
 
 // Game title block
-local copy = fe.add_text( trimmed_copy ( 0 ), 30, 435, 320, 20 );
+local copy = fe.add_text( "©", 30, 435, 320, 20 );
 copy.align = Align.Left;
-//local man = fe.add_text( "©" + trimmed_copy( 0 ) + " [Year]", 42, 435, 320, 20 );
-//man.align = Align.Left;
-//local yearshadow = fe.add_text( "[Year]", 21, 376, fe.layout.width-10, 94 );
-//yearshadow.align = Align.Right;
-//yearshadow.style = Style.Bold;
-//yearshadow.set_rgb (0,0,0);
-//local year = fe.add_text( "[Year]", 20, 375, fe.layout.width-10, 94 );
-//year.align = Align.Right;
-//year.style = Style.Bold;
+local man = fe.add_text( trimmed_man( 0 ), 42, 435, 320, 20 );
+man.align = Align.Left;
+local yearshadow = fe.add_text( "[Year]", 21, 376, fe.layout.width, 94 );
+yearshadow.align = Align.Right;
+yearshadow.style = Style.Bold;
+yearshadow.set_rgb (0,0,0);
+local year = fe.add_text( "[Year]", 20, 375, fe.layout.width, 94 );
+year.align = Align.Right;
+year.style = Style.Bold;
 local gametitleshadow = fe.add_text( trimmed_name( 0 ), 21, 411, fe.layout.width, 24 );
 gametitleshadow.align = Align.Left;
 gametitleshadow.style = Style.Bold;
@@ -81,7 +69,7 @@ gametitle.align = Align.Left;
 gametitle.style = Style.Bold;
 
 // Category
-local cat = fe.add_text( "[Category]", fe.layout.width-24, fe.layout.height, fe.layout.height, 24 );
+local cat = fe.add_text( "[Category]", fe.layout.width-24, 380, 390, 24 );
 cat.set_rgb( 0, 0, 0 );
 cat.rotation = -90; 
 cat.align = Align.Left;
@@ -110,13 +98,8 @@ function fancy_transitions( ttype, var, ttime ) {
 	case Transition.EndLayout:
 		gametitleshadow.msg = trimmed_name( var );
 		gametitle.msg = trimmed_name( var );
-		copy.msg = trimmed_copy ( var );
-		red = brightrand();
-		green = brightrand();
-                blue = brightrand();
-		//year.set_rgb (red,green,blue);
-		copy.set_rgb (red,green,blue);
-		//man.set_rgb (red,green,blue);
+		man.msg = trimmed_man ( var );
+		year.set_rgb (255-(rand()/255),255-(rand()/255),255-(rand()/255));
 		break;
 
 	case Transition.FromGame:
