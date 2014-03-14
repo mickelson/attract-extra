@@ -19,9 +19,6 @@ local my_config = fe.get_config();
 // Layout Constants
 fe.layout.width=640;
 fe.layout.height=480;
-fe.layout.font="Coolvetica";
-//fe.layout.font="BorisBlackBloxx";
-//fe.layout.font="Fava-black";
 
 // Game name text. We do this in the layout as the frontend doesn't chop up titles with a forward slash
 function gamename( index_offset ) {
@@ -65,17 +62,17 @@ if ( my_config["bg_image"] == "user") {
 local bgmask = fe.add_image ("mask.png", 0, 0, fe.layout.width, fe.layout.height);
 // Preview image
 if ( my_config["preview_image"] == "video") {
- local previewoutline = fe.add_image ("black.png",38,58,344,258);
- local preview = fe.add_artwork( "snap", 40, 60, 340, 255);
+ local previewoutline = fe.add_image ("black.png",38,68,344,258);
+ local preview = fe.add_artwork( "snap", 40, 70, 340, 255);
 }
 if ( my_config["preview_image"] == "snap") {
- local previewoutline = fe.add_image ("black.png",38,58,344,258);
- local preview = fe.add_artwork( "snap", 40, 60, 340, 255);
+ local previewoutline = fe.add_image ("black.png",38,68,344,258);
+ local preview = fe.add_artwork( "snap", 40, 70, 340, 255);
  preview.movie_enabled = false;
 }
 if ( my_config["preview_image"] == "title") {
- local previewoutline = fe.add_image ("black.png",38,58,344,258);
- local preview = fe.add_artwork( "title", 40, 60, 340, 255);
+ local previewoutline = fe.add_image ("black.png",38,68,344,258);
+ local preview = fe.add_artwork( "title", 40, 70, 340, 255);
 }
 // Flyer image
 local flyeroutline = fe.add_artwork( "flyer", 340, 60, 260, 340);
