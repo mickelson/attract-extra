@@ -27,12 +27,15 @@ class UserConfig </ help="Regenerates romlists when the screensaver is active." 
 local executable=fe.init_name;
 local emulators = split(fe.uconfig["cfg_emulators"],",");
 local romlists = split(fe.uconfig["cfg_romlists"],",");
+local runonce = true;
 
 fe.add_transition_callback("regen_plugin_transition");
 function regen_plugin_transition (ttype, var, ttime ) {
- if (ScreenSaverActive) {
-  foreach(idx,val in emulators)
+ if (ScreenSaverActive && runonce) {
+  foreach(idx,val in emulators) {
+   runonce = false;
    fe.plugin_command( executable, "--build-romlist " + val + " --output " + romlists[idx]);
+  }
   return false;
  }
  return false;
