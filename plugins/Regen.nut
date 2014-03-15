@@ -21,7 +21,7 @@ class UserConfig </ help="Regenerates romlists when the screensaver is active." 
  cfg_emulators="mame,mess-snes,video";
 
  </ label="Romlists", help="Comma separated list of romlists." />
- cfg_romlists="mame,mess-snes,video";
+ cfg_romlists="Arcade,Super Nintendo,Videos";
 }
 
 local executable=fe.init_name;
@@ -34,7 +34,7 @@ function regen_plugin_transition (ttype, var, ttime ) {
  if (ScreenSaverActive && runonce) {
   foreach(idx,val in emulators) {
    runonce = false;
-   fe.plugin_command( executable, "--build-romlist " + val + " --output " + romlists[idx]);
+   fe.plugin_command( executable, "--build-romlist " + val + " --output \"" + romlists[idx] + "\"");
   }
   return false;
  }
