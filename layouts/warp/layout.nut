@@ -25,6 +25,9 @@ class UserConfig {
 
 	</ label="Artwork Size", help="Set the size of the displayed artwork", options="Small,Medium,Large" />
 	g_art_size="Large";
+
+	</ label="Transition", help="Set the artwork transition type", options="Fade,Navigate" />
+	h_transition="Fade";
 }
 
 local my_config = fe.get_config();
@@ -194,8 +197,7 @@ function anim()
 fe.add_ticks_callback( "my_tick" );
 fe.add_transition_callback( "my_transition" );
 
-local my_angle=45;
-local my_shear=0;
+local accumulate_x=0;
 
 function my_tick( ttime )
 {
@@ -220,15 +222,57 @@ function my_tick( ttime )
 	{
 		cursor_x = ( x + ( left / 100.0 ) * x ).tointeger();
 		snap.x = snap_x - ( left / 100.0 ) * 4;
+		accumulate_x -= left / 10;
 	}
 	if ( right > 0 )
 	{
 		cursor_x = ( x - ( right / 100.0 ) * y ).tointeger();
 		snap.x = snap_x + ( right / 100.0 ) * 4;
+		accumulate_x += right / 10;
 	}
 
 	mouse_x=cursor_x-x;
 	mouse_y=cursor_y-y;
+
+	if ( my_config["h_transition"] == "Navigate" )
+	{
+		if ( accumulate_x > 0 )
+		{
+			snap_back.alpha=255;
+			snap_back.index_offset = snap.index_offset + 1;
+			snap_back.x = fe.layout.width - accumulate_x;
+
+			if ( snap_back.x < fe.layout.width )
+			{
+				snap.x = snap_x - ( fe.layout.width - snap_back.x );
+			}
+
+			if ( snap_back.x <= snap_x )
+			{
+				fe.list.index++;
+				snap_back.alpha=0;
+				accumulate_x = 0;
+			}
+		}
+		else
+		{
+			snap_back.alpha=255;
+			snap_back.index_offset = snap.index_offset - 1;
+			snap_back.x = -fe.layout.width - accumulate_x;
+
+			if ( snap_back.x + snap_back.width > 0 )
+			{
+				snap.x = snap_x + ( snap_back.x + snap_back.width );
+			}
+
+			if ( snap_back.x >= snap_x )
+			{
+				fe.list.index--;
+				snap_back.alpha=0;
+				accumulate_x = 0;
+			}
+		}
+	}
 
 	anim();
 }
@@ -240,6 +284,8 @@ function my_transition( ttype, var, ttime )
 	case Transition.ToGame:
 		if ( ttime < 1500 )
 		{
+			snap_back.alpha=0;
+			accumulate_x = 0;
 			mouse_x=0;
 			mouse_y=0;
 			if ( ttime < 1000 )
@@ -268,17 +314,20 @@ function my_transition( ttype, var, ttime )
 		break;
 
 	case Transition.ToNewSelection:
-		if ( ttime < 125 )
+		if ( my_config["h_transition"] == "Fade" )
 		{
-			snap_back.index_offset = var;
+			if ( ttime < 125 )
+			{
+				snap_back.index_offset = var;
 
-			snap.alpha = 255 - ttime * 2;
-			snap_back.alpha = ttime * 2;
-			anim();
-			return true;
+				snap.alpha = 255 - ttime * 2;
+				snap_back.alpha = ttime * 2;
+				anim();
+				return true;
+			}
+			snap.alpha=255;
+			snap_back.alpha = 0;
 		}
-		snap.alpha=255;
-		snap_back.alpha = 0;
 		break;
 	}
 
