@@ -1,5 +1,8 @@
 // Layout by cools / Arcade Otaku
 // http://www.arcadeotaku.com
+// Uses snap, logo and flyer images. Will use title images if desired.
+// 
+// History/changes: too many. I use this so it's forever WIP
 ///////////////////////////////////////////////////////// 
 // Layout User Options
 class UserConfig {
@@ -7,12 +10,12 @@ class UserConfig {
  </ label="Preview Image", help="Choose snap/video snap, title or none.", options="snap,video,title,none" /> preview_image = "none";
  </ label="Title Flicker", help="Flicker the game title", options="Yes,No" /> enable_flicker="Yes";
  </ label="Display List Name", help="Show ROM list name", options="Yes,No" /> enable_list="Yes";
- </ label="Display Logo", help="Show game logo (wheel)", options="Yes,No" /> enable_logo="Yes";
- </ label="Display Flyer", help="Show game flyer", options="Yes,No" /> enable_flyer="Yes";
  </ label="Display Filter Name", help="Show filter name", options="Yes,No" /> enable_filter="Yes";
  </ label="Display Entries", help="Show quantity of ROMs in current filter", options="Yes,No" /> enable_entries="Yes";
  </ label="Display Category", help="Show game category", options="Yes,No" /> enable_category="Yes";
  </ label="Flyer Angle", help="Rotation of the game flyer in degrees (0-15)", options="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15" /> flyer_angle="5";
+ </ label="Display Flyer", help="Hides the flyer/game box.", options="Yes,No" /> enable_flyer="Yes";
+ </ label="Logo Position", help="Positions the logo on screen.", options="Left,Centre,Right" /> logo_position="Left";
 }
 local my_config = fe.get_config();
 // Layout Constants
@@ -22,7 +25,10 @@ local bgx=(fe.layout.width/8)*-1;
 local bgy=(fe.layout.height/8)*-1
 local bgw=(fe.layout.width/4)*5;
 local bgh=(fe.layout.height/4)*5;
-
+local snx=10;
+local sny=35;
+local snw=170;
+local snh=127;
 // Game name text. We do this in the layout as the frontend doesn't chop up titles with a forward slash
 function gamename( index_offset ) {
  local s = split( fe.game_info( Info.Title, index_offset ), "(/[" );
@@ -60,21 +66,25 @@ if ( my_config["bg_image"] == "title") {
 if ( my_config["bg_image"] == "user") {
  local bg = fe.add_image( "bg.jpg", 0, 0, fe.layout.width, fe.layout.height);
 }
-local bgmask = fe.add_image ("mask.png", 0, 0, fe.layout.width, fe.layout.height);
+local bgmask = fe.add_image ("bgmask.png", 0, 0, fe.layout.width, fe.layout.height);
 // Preview image
 if ( my_config["preview_image"] == "video") {
- local previewoutline = fe.add_image ("black.png",9,34,172,129);
- local preview = fe.add_artwork( "snap", 10, 35, 170, 127);
+ local previewoutline = fe.add_image ("black.png",snx-1,sny-1,snw+2,snh+2);
+ local preview = fe.add_artwork( "snap", snx, sny, snw, snh);
 }
 if ( my_config["preview_image"] == "snap") {
- local previewoutline = fe.add_image ("black.png",9,34,172,129);
- local preview = fe.add_artwork( "snap", 10, 35, 170, 127);
+ local previewoutline = fe.add_image ("black.png",snx-1,sny-1,snw+2,snh+2);
+ local preview = fe.add_artwork( "snap", snx, sny, snw, snh);
  preview.movie_enabled = false;
 }
 if ( my_config["preview_image"] == "title") {
- local previewoutline = fe.add_image ("black.png",9,34,172,129);
- local preview = fe.add_artwork( "title", 10, 35, 170, 127);
+ local previewoutline = fe.add_image ("black.png",snx-1,sny-1,snw+2,snh+2);
+ local preview = fe.add_artwork( "snap", snx, sny, snw, snh);
 }
+// Game title background
+local titlemask = fe.add_image ("titlemask.png", 0, 198, fe.layout.width, 0);
+titlemask.height = fe.layout.height - titlemask.y;
+titlemask.set_rgb (0,0,0);
 // Flyer image
 if ( my_config["enable_flyer"] == "Yes") {
  local flyeroutline = fe.add_artwork( "flyer", 160, 30, 130, 170);
@@ -89,13 +99,11 @@ if ( my_config["enable_flyer"] == "Yes") {
  flyeroutline.height = flyeroutline.height + 2;
  flyeroutline.set_rgb (0,0,0);
 }
-// Game title block
-local copy = fe.add_text( copyright ( 0 ), 15, 217, fe.layout.width - 30, 12 );
-copy.align = Align.Left;
-local gametitleshadow = fe.add_text( gamename ( 0 ), 11, 203, fe.layout.width, 16 );
+// Game title text
+local gametitleshadow = fe.add_text( gamename ( 0 ), 6, 201, fe.layout.width-5, 16 );
 gametitleshadow.align = Align.Left;
 gametitleshadow.set_rgb (0,0,0);
-local gametitle = fe.add_text( gamename ( 0 ), 10, 202, fe.layout.width, 16 );
+local gametitle = fe.add_text( gamename ( 0 ), 5, 200, fe.layout.width-5, 16 );
 gametitle.align = Align.Left;
 // Make the game title flicker. Added bonus - currently fixes graphical corruption and screen not refreshing bugs.
 fe.add_ticks_callback("flickertitle");
@@ -107,27 +115,35 @@ function flickertitle( ttime ) {
   gametitle.set_rgb (255,255,255);
  }
 }
-// Game wheel image
-if ( my_config["enable_logo"] == "Yes") {
- local wheelshadow = fe.add_artwork( "wheel", 7, 117, 200, 0);
- wheelshadow.preserve_aspect_ratio = true;
- wheelshadow.set_rgb(0,0,0);
- local wheel = fe.add_clone( wheelshadow );
- wheel.set_rgb (255,255,255);
- wheel.x = wheel.x - 2;
- wheel.y = wheel.y - 2; 
+local copy = fe.add_text( copyright ( 0 ), 5, 217, fe.layout.width - 5, 10 );
+copy.align = Align.Left;
+// Game logo image
+local logox = 7;
+switch ( my_config["logo_position"] ) {
+ case "Centre":
+  logox = 62;
+  break;
+ case "Right":
+  logox = 113;
 }
+local logoshadow = fe.add_artwork( "wheel", logox, 117, 200, 0);
+logoshadow.preserve_aspect_ratio = true;
+logoshadow.set_rgb(0,0,0);
+local logo = fe.add_clone( logoshadow );
+logo.set_rgb (255,255,255);
+logo.x = logo.x - 2;
+logo.y = logo.y - 2; 
 // Loading screen message.
 local message = fe.add_text("Loading...",0,100,fe.layout.width,40);
 message.alpha = 0;
 // Optional game texts
-local romlist = fe.add_text( "[ListTitle]", 2, 10, 315, 12 );
+local romlist = fe.add_text( "[ListTitle]", 2, 10, 315, 10 );
 romlist.align = Align.Left;
-local filter = fe.add_text( "[ListFilterName]", 2, 10, 315, 12 );
-filter.align = Align.Centre;
-local entries = fe.add_text( "[ListEntry]/[ListSize]", 2, 10, 315, 12 );
+local filter = fe.add_text( "[ListFilterName]", 2, 10, 315, 10 );
+filter.align = Align.Right;
+local entries = fe.add_text( "[ListEntry]/[ListSize]", 2, 20, 315, 10 );
 entries.align = Align.Right;
-local cat = fe.add_text( fe.game_info (Info.Category), 2, 217, 315, 12 );
+local cat = fe.add_text( fe.game_info (Info.Category), 2, 217, 315, 10 );
 cat.align = Align.Right;
 // Switch texts on and off
 if ( my_config["enable_category"] == "Yes" ) { cat.visible = true; } else { cat.visible = false; }
