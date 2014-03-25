@@ -222,13 +222,13 @@ function my_tick( ttime )
 	{
 		cursor_x = ( x + ( left / 100.0 ) * x ).tointeger();
 		snap.x = snap_x - ( left / 100.0 ) * 4;
-		accumulate_x -= left / 10;
+		accumulate_x -= left / 8;
 	}
 	if ( right > 0 )
 	{
 		cursor_x = ( x - ( right / 100.0 ) * y ).tointeger();
 		snap.x = snap_x + ( right / 100.0 ) * 4;
-		accumulate_x += right / 10;
+		accumulate_x += right / 8;
 	}
 
 	mouse_x=cursor_x-x;
@@ -251,6 +251,7 @@ function my_tick( ttime )
 			{
 				fe.list.index++;
 				snap_back.alpha=0;
+				snap.x = snap_x;
 				accumulate_x = 0;
 			}
 		}
@@ -269,6 +270,7 @@ function my_tick( ttime )
 			{
 				fe.list.index--;
 				snap_back.alpha=0;
+				snap.x = snap_x;
 				accumulate_x = 0;
 			}
 		}
