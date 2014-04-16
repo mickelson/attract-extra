@@ -4,6 +4,11 @@
 // http://www.chromeexperiments.com/detail/starfield/?f=`
 // http://www.chiptune.com/starfield/starfield.html
 //
+// For best results use this layout with the wireframe artworks posted
+// by Le Chuck over at the BYOAC forum:
+//
+// http://forum.arcadecontrols.com/index.php/topic,137291.msg1420703.html#msg1420703 
+//
 class UserConfig {
 	</ label="Controls: Up", help="Set controls for navigating the starfield", is_input="yes" />
 	a_up="";

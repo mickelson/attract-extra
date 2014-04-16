@@ -17,7 +17,8 @@ class UserConfig </ help="Switches off the PC when quitting the frontend. Set th
 }
 
 local shutdown=fe.init_name;
-local timeout = fe.uconfig["s_time"];
+local config = fe.get_config();
+local timeout = config["s_time"];
 
 local s_map = {
 	Normal="/c shutdown -s -t "
@@ -27,8 +28,8 @@ local s_map = {
 };
 
 local options;
-if ( s_map.rawin( fe.uconfig["s_type"] ) )
-	options = s_map[ fe.uconfig["s_type"] ];
+if ( s_map.rawin( config["s_type"] ) )
+	options = s_map[ config["s_type"] ];
 
 fe.add_transition_callback( "shutdown_plugin_transition" );
 

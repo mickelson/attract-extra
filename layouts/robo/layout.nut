@@ -7,15 +7,16 @@
 fe.layout.width = 1024;
 fe.layout.height = 768;
 
-local marquee = fe.add_artwork( "marquee", 578, 30, 400, 105 );
-marquee.shear_x = -80;
+local marquee = fe.add_artwork( "marquee", 568, 25, 384, 110 );
+marquee.skew_x = -22;
 marquee.rotation = 1;
+marquee.subimg_width=-marquee.texture_width;
 
 local l = fe.add_listbox( 0, 0, 490, 768 );
 l.charsize = 19;
 
-l = fe.add_artwork( "", 733, 250, 225, 200 );
-l.shear_x = -12;
-l.rotation = 5;
+l = fe.add_artwork( "", 719, 258, 220, 190 );
+l.pinch_y = -10;
+l.rotation = 7;
 
 fe.add_image( "robo.png", 0, 0, 1024, 768 );
