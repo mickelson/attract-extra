@@ -15,6 +15,18 @@ class UserConfig {
 	</ label="Shaders Enabled", help="Enable Shaders on Artwork (requires shader support)", 
 	options="Yes,No" />
 	enable_shaders="Yes";
+	
+	</ label="Background Shader", help="Choose a shader for the background",
+	options="Blur,Pixel,Scanlines,Bloom,None" />
+	bgndShader="Blur";
+	
+	</ label="Video Shader", help="Choose a shader for the video",
+	options="Blur,Pixel,Scanlines,Bloom,None" />
+	vidShader="Blur";
+	
+	</ label="Title Shader", help="Choose a shader for the title",
+	options="Blur,Pixel,Scanlines,Bloom,None" />
+	titShader="Blur";
 
 	</ label="Screen Size", help="Select the screen size", 
 	options="1360x768,1280x1024,1280x768,1280x720" />
@@ -68,179 +80,84 @@ else if ( layoutSettings["screenSize"] == "1280x720" ){
 }
 
 // Globals
-local title_Y = 0;
-local wheel_Y = 0;
-local wheelXDiviser = 0;
-if (layoutSettings["rotated"] == "Yes"){
+listx <- 10;
+title_X <- (fe.layout.width / 150);
+title_Y <- 0;
+titleSize <- 42;
+wheel_Y <- 0;
+wheelScale <- 1.5;
+wheelShadowOffset <- 8;
+wheelXDiviser <- 0;
+
+if ( layoutSettings["rotated"] == "Yes") {
 	title_Y = (fe.layout.height / 1.08);
 	wheel_Y = (fe.layout.height / 1.20);
 	wheelXDiviser = 2.8;
 	}
-else if (layoutSettings["rotated"] == "No"){
+else {
 	title_Y = (fe.layout.height / 1.10);
 	wheel_Y = (fe.layout.height / 1.33);
 	wheelXDiviser = 2.4;
 	}
 	
-local titleSize = 42;
-local title_X = (fe.layout.width / 150);
-local wheelScale = 1.5;
-local wheelShadowOffset = 8;
+// Shader Set Up
+local noShader = fe.add_shader( Shader.Empty );
+backGroundShader <- noShader;
+videoShader <- noShader;
+titleShader <- noShader;
+// Local Settings
+local bloom = noShader;
+local blur = noShader;
+local pixel = noShader;
+local scanlines = noShader;
 
-
-local listx = 10;
-// Image shadow/outline thickness
-
-local bloom = fe.add_shader( Shader.Empty );
-local blurSimple = fe.add_shader( Shader.Empty );
 if ( layoutSettings["enable_shaders"] == "Yes" ){
 	bloom = fe.add_shader( Shader.Fragment, "shaders/bloom_shader.frag" );
-	blurSimple = fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
+	blur = fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
+	pixel = fe.add_shader( Shader.Fragment, "shaders/pixel.frag" );
+	scanlines = fe.add_shader( Shader.Fragment, "shaders/scanlines.frag" );
 	} 
-	else if ( layoutSettings["enable_shaders"] == "No" ){
-	bloom = fe.add_shader( Shader.Empty );
-	blurSimple = fe.add_shader( Shader.Empty );
+else if ( layoutSettings["enable_shaders"] == "No" ){
+	bloom = noShader;
+	blur = noShader;
+	pixel = noShader;
+	scanlines = noShader;
+	backGroundShader = noShader;
 }
 
-// Gives us a nice high random number for the RGB levels
-function brightrand() {
-	return 255-(rand()/222);
-}
-local red = brightrand();
-local green = brightrand();
-local blue = brightrand();
+if ( layoutSettings["bgndShader"] == "Blur" )
+	backGroundShader = blur;
+else if ( layoutSettings["bgndShader"] == "Pixel" )
+	backGroundShader = pixel;
+else if ( layoutSettings["bgndShader"] == "Scanlines" )
+	backGroundShader = scanlines;
+else if ( layoutSettings["bgndShader"] == "Bloom" )
+	backGroundShader = bloom;
+else if ( layoutSettings["bgndShader"] == "None" )
+	backGroundShader = noShader;
 
-// Video overlay.
-local backGround = fe.add_artwork( "snap", -5, -5, fe.layout.width, fe.layout.height);
-backGround.set_rgb (30,30,30);
-backGround.shader = blurSimple;
-local videoShadow = fe.add_artwork( "movie", -1, -1, fe.layout.width, fe.layout.height);
-videoShadow.set_rgb (0,0,0);
-videoShadow.preserve_aspect_ratio = true;
-local video = fe.add_artwork( "movie", (videoShadow.x +6), (videoShadow.y +6), (videoShadow.width -12), (videoShadow.height -12));
-video.set_rgb (255,255,255);
-video.preserve_aspect_ratio = true;
+if ( layoutSettings["vidShader"] == "Blur" )
+	videoShader = blur;
+else if ( layoutSettings["vidShader"] == "Pixel" )
+	videoShader = pixel;
+else if ( layoutSettings["vidShader"] == "Scanlines" )
+	videoShader = scanlines;
+else if ( layoutSettings["vidShader"] == "Bloom" )
+	videoShader = bloom;
+else if ( layoutSettings["vidShader"] == "None" )
+	videoShader = noShader;
+	
+if ( layoutSettings["titShader"] == "Blur" )
+	titleShader = blur;
+else if ( layoutSettings["titShader"] == "Pixel" )
+	titleShader = pixel;
+else if ( layoutSettings["titShader"] == "Scanlines" )
+	titleShader = scanlines;
+else if ( layoutSettings["titShader"] == "Bloom" )
+	titleShader = bloom;
+else if ( layoutSettings["titShader"] == "None" )
+	titleShader = noShader;
 
-// Game wheel image
-local wheelArt = (layoutSettings["title_art"]);
-local wheelShadow = fe.add_artwork( wheelArt, 0, wheel_Y);
-local wheel = fe.add_clone( wheelShadow);
+wheelArt <- (layoutSettings["title_art"]);
 
-// List Title
-local romShadow = fe.add_text( "[ListFilterName]", listx + 5, 6, fe.layout.width - 2, 71.5 );
-romShadow.align = Align.Left;
-romShadow.style = Style.Bold;
-romShadow.set_rgb (0,0,0);
-local romList = fe.add_text( "[ListFilterName]", listx, 5, fe.layout.width - 5, 71 );
-romList.align = Align.Left;
-romList.style = Style.Bold;
-romList.set_rgb (red,green,blue);
-
-local detailShadow = fe.add_text( "[ListEntry]/[ListSize]", -1, 36, fe.layout.width, 33 );
-detailShadow.align = Align.Right;
-detailShadow.style = Style.Bold;
-detailShadow.set_rgb (0,0,0);
-local listPos = fe.add_text( "[ListEntry]/[ListSize]", 0, 35, fe.layout.width, 32 );
-listPos.align = Align.Right;
-listPos.style = Style.Bold;
-
-// Game title block
-local gameTitleShadow = fe.add_text( "[Title] ([Year])", title_X, title_Y, fe.layout.width, titleSize );
-gameTitleShadow.align = Align.Centre;
-gameTitleShadow.style = Style.Bold;
-gameTitleShadow.set_rgb (0,0,0);
-local gameTitle = fe.add_text( "[Title] ([Year])", (title_X - 2), (title_Y - 2), fe.layout.width, titleSize );
-gameTitle.align = Align.Centre;
-gameTitle.style = Style.Bold;
-gameTitle.set_rgb (red,green,blue);
-
-local message = fe.add_text("Player Ready...",0,200,fe.layout.width,80);
-message.alpha = 0;
-message.style = Style.Bold;
-
-function wheelUpdate(){
-	// Set wheel size.
-	wheel.width = wheel.texture_width * wheelScale;
-	wheel.height = wheel.texture_height * wheelScale;
-	wheelShadow.width = wheel.width
-	wheelShadow.height = wheel.height;
-	// Set wheel position.
-	wheel.x = (fe.layout.width /wheelXDiviser) - (wheel.texture_width /2);
-	wheel.y = wheel_Y - wheel.texture_height;
-	wheelShadow.x = wheel.x + wheelShadowOffset;
-	wheelShadow.y = wheel.y + wheelShadowOffset;
-	//
-	wheelShadow.set_rgb (55,55,55);
-	wheel.shader = bloom;
-}
-
-// Transitions
-fe.add_transition_callback( "new_transitions" );
-
-function new_transitions( ttype, var, ttime ) {
-	switch ( ttype )
-	{
-	case Transition.ToNewList:	
-	case Transition.FromOldSelection:
-		wheelUpdate();
-		break;
-		
-	case Transition.ToNewSelection:
-		wheelUpdate();
-			red = brightrand();
-			green = brightrand();
-            blue = brightrand();
-		//romList.set_rgb (red,green,blue);
-		//	red = brightrand();
-		//	green = brightrand();
-        //   blue = brightrand();
-		gameTitle.set_rgb (red,green,blue);
-			red = brightrand();
-			green = brightrand();
-            blue = brightrand();
-		break;
-
-	case Transition.FromGame:
-		if ( ttime < 255 )
-		{
-			foreach (o in fe.obj)
-				o.alpha = ttime;
-			message.alpha = 0;
-			return true;
-		}
-		else
-		{
-			foreach (o in fe.obj)
-				o.alpha = 255;
-			message.alpha = 0;
-		}
-		break;
-
-	case Transition.EndLayout:
-		if ( ttime < 255 )
-		{
-			foreach (o in fe.obj)
-				o.alpha = 255 - ttime;
-			message.alpha = 0;
-			return true;
-		}
-		else
-		{
-			foreach (o in fe.obj)
-				o.alpha = 255;
-			message.alpha = 0;
-		}
-		break;
-
-	case Transition.ToGame:
-		if ( ttime < 255 )
-		{
-			foreach (o in fe.obj)
-				o.alpha = 255 - ttime;
-			message.alpha = ttime;
-			return true;
-		}
-		break;
-	}
-	return false;
-}
+fe.do_nut("run.nut");
