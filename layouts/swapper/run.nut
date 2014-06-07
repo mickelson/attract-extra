@@ -3,44 +3,6 @@ function set_bright( r, g, b, o ) {
 	o.set_rgb( r, g, b );
 }
 
-// Video overlay.
-local backGround = fe.add_artwork( "snap", -5, -5, fe.layout.width, fe.layout.height);
-backGround.set_rgb (30,30,30);
-backGround.shader = backGroundShader;
-local videoShadow = fe.add_artwork( "movie", -1, -1, fe.layout.width, fe.layout.height);
-videoShadow.set_rgb (0,0,0);
-videoShadow.preserve_aspect_ratio = true;
-local video = fe.add_artwork( "movie", (videoShadow.x +6), (videoShadow.y +6), (videoShadow.width -12), (videoShadow.height -12));
-video.set_rgb (255,255,255);
-video.preserve_aspect_ratio = true;
-video.shader = videoShader;
-
-// List Title
-local romShadow = fe.add_text( "[ListFilterName]", listx + 5, 6, fe.layout.width - 2, 71.5 );
-romShadow.align = Align.Left;
-romShadow.style = Style.Bold;
-romShadow.set_rgb (0,0,0);
-local romList = fe.add_text( "[ListFilterName]", listx, 5, fe.layout.width - 5, 71 );
-romList.align = Align.Left;
-romList.style = Style.Bold;
-
-local detailShadow = fe.add_text( "[ListEntry]/[ListSize]", -1, 36, fe.layout.width, 33 );
-detailShadow.align = Align.Right;
-detailShadow.style = Style.Bold;
-detailShadow.set_rgb (0,0,0);
-local listPos = fe.add_text( "[ListEntry]/[ListSize]", 0, 35, fe.layout.width, 32 );
-listPos.align = Align.Right;
-listPos.style = Style.Bold;
-
-// Game title block
-local gameTitleShadow = fe.add_text( "[Title] ([Year])", title_X, title_Y, fe.layout.width, titleSize );
-gameTitleShadow.align = Align.Centre;
-gameTitleShadow.style = Style.Bold;
-gameTitleShadow.set_rgb (0,0,0);
-local gameTitle = fe.add_text( "[Title] ([Year])", (title_X - 2), (title_Y - 2), fe.layout.width, titleSize );
-gameTitle.align = Align.Centre;
-gameTitle.style = Style.Bold;
-
 local message = fe.add_text("Player Ready...",0,200,fe.layout.width,80);
 message.alpha = 0;
 message.style = Style.Bold;

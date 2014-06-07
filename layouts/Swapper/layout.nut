@@ -38,49 +38,35 @@ class UserConfig {
 }
 
 local layoutSettings = fe.get_config();
-if ( layoutSettings["screenSize"] == "1360x768" ){
-	if ( layoutSettings["rotated"] == "Yes")	{
-		fe.layout.width=768;
-		fe.layout.height=1360;
+switch (layoutSettings["screenSize"]){
+	case "1360x768":
+	switch (layoutSettings["rotated"]){
+		case "Yes": 	fe.layout.width=768; 	fe.layout.height=1360;		break;
+		case "No" :		fe.layout.width=1360;	fe.layout.height=768;		break;
 	}
-	else if ( layoutSettings["rotated"] == "No"){
-		fe.layout.width=1360;
-		fe.layout.height=768;
+	break;
+	case "1280x1024":
+	switch (layoutSettings["rotated"]){
+		case "Yes": 	fe.layout.width=1024; 	fe.layout.height=1280;		break;
+		case "No" :		fe.layout.width=1280;	fe.layout.height=1024;		break;
 	}
+	break;
+	case "1280x768":
+	switch (layoutSettings["rotated"]){
+		case "Yes": 	fe.layout.width=768; 	fe.layout.height=1280;		break;
+		case "No" :		fe.layout.width=1280;	fe.layout.height=768;		break;
+	}
+	break;
+	case "1280x720":
+	switch (layoutSettings["rotated"]){
+		case "Yes": 	fe.layout.width=720; 	fe.layout.height=1280;		break;
+		case "No" :		fe.layout.width=1280;	fe.layout.height=720;		break;
+	}
+	break;
 }
-else if ( layoutSettings["screenSize"] == "1280x1024" ){
-	if ( layoutSettings["rotated"] == "Yes"){
-		fe.layout.width=1024;
-		fe.layout.height=1280;
-	}
-	else if ( layoutSettings["rotated"] == "No"){
-		fe.layout.width=1280;
-		fe.layout.height=1024;
-	}
-}
-else if ( layoutSettings["screenSize"] == "1280x768" ){
-	if ( layoutSettings["rotated"] == "Yes") {
-		fe.layout.width=768;
-		fe.layout.height=1280;
-	}
-	else if ( layoutSettings["rotated"] == "No"){
-		fe.layout.width=1280;
-		fe.layout.height=768;
-	}
-}
-else if ( layoutSettings["screenSize"] == "1280x720" ){
-	if ( layoutSettings["rotated"] == "Yes") {
-		fe.layout.width=720;
-		fe.layout.height=1280;
-	}
-	else if ( layoutSettings["rotated"] == "No"){
-		fe.layout.width=1280;
-		fe.layout.height=720;
-	}
-}
-
 // Globals
-listx <- 10;
+list_X <- 10;	
+list_Y <- 0;
 title_X <- (fe.layout.width / 150);
 title_Y <- 0;
 titleSize <- 42;
@@ -100,64 +86,56 @@ else {
 	wheelXDiviser = 2.4;
 	}
 	
-// Shader Set Up
+// Shader Setup
 local noShader = fe.add_shader( Shader.Empty );
 backGroundShader <- noShader;
 videoShader <- noShader;
 titleShader <- noShader;
 // Local Settings
-local bloom = noShader;
-local blur = noShader;
-local pixel = noShader;
-local scanlines = noShader;
+local Bloom = noShader;
+local Blur = noShader;
+local Pixel = noShader;
+local Scanlines = noShader;
+local None = noShader;
 
 if ( layoutSettings["enable_shaders"] == "Yes" ){
-	bloom = fe.add_shader( Shader.Fragment, "shaders/bloom_shader.frag" );
-	blur = fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
-	pixel = fe.add_shader( Shader.Fragment, "shaders/pixel.frag" );
-	scanlines = fe.add_shader( Shader.Fragment, "shaders/scanlines.frag" );
-	} 
+	Bloom		= fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );
+	Blur 		= fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
+	Pixel		= fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );
+	Scanlines 	= fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );
+} 
 else if ( layoutSettings["enable_shaders"] == "No" ){
-	bloom = noShader;
-	blur = noShader;
-	pixel = noShader;
-	scanlines = noShader;
+	Bloom = noShader;
+	Blur = noShader;
+	Pixel = noShader;
+	Scanlines = noShader;
 	backGroundShader = noShader;
 }
 
-if ( layoutSettings["bgndShader"] == "Blur" )
-	backGroundShader = blur;
-else if ( layoutSettings["bgndShader"] == "Pixel" )
-	backGroundShader = pixel;
-else if ( layoutSettings["bgndShader"] == "Scanlines" )
-	backGroundShader = scanlines;
-else if ( layoutSettings["bgndShader"] == "Bloom" )
-	backGroundShader = bloom;
-else if ( layoutSettings["bgndShader"] == "None" )
-	backGroundShader = noShader;
-
-if ( layoutSettings["vidShader"] == "Blur" )
-	videoShader = blur;
-else if ( layoutSettings["vidShader"] == "Pixel" )
-	videoShader = pixel;
-else if ( layoutSettings["vidShader"] == "Scanlines" )
-	videoShader = scanlines;
-else if ( layoutSettings["vidShader"] == "Bloom" )
-	videoShader = bloom;
-else if ( layoutSettings["vidShader"] == "None" )
-	videoShader = noShader;
-	
-if ( layoutSettings["titShader"] == "Blur" )
-	titleShader = blur;
-else if ( layoutSettings["titShader"] == "Pixel" )
-	titleShader = pixel;
-else if ( layoutSettings["titShader"] == "Scanlines" )
-	titleShader = scanlines;
-else if ( layoutSettings["titShader"] == "Bloom" )
-	titleShader = bloom;
-else if ( layoutSettings["titShader"] == "None" )
-	titleShader = noShader;
+switch (layoutSettings["bgndShader"]){
+	case "Blur": 		backGroundShader = Blur;		break;
+	case "Pixel":		backGroundShader = Pixel; 		break;
+	case "Scanlines": 	backGroundShader = Scanlines;	break;
+	case "Bloom": 		backGroundShader = Bloom;		break;
+	case "None": 		backGroundShader = noShader;	break;
+}
+switch (layoutSettings["vidShader"]){
+	case "Blur": 		videoShader = Blur;				break;
+	case "Pixel":		videoShader = Pixel; 			break;
+	case "Scanlines": 	videoShader = Scanlines; 		break;
+	case "Bloom": 		videoShader = Bloom;			break;
+	case "None": 		videoShader = noShader;			break;
+}
+switch (layoutSettings["titShader"]){
+	case "Blur": 		titleShader = Blur;				break;
+	case "Pixel":		titleShader = Pixel;			break;
+	case "Scanlines": 	titleShader = Scanlines;		break;
+	case "Bloom": 		titleShader = Bloom;			break;
+	case "None": 		titleShader = noShader;			break;
+}
 
 wheelArt <- (layoutSettings["title_art"]);
 
+fe.do_nut("video.nut");
 fe.do_nut("run.nut");
+fe.do_nut("text.nut");
