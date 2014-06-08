@@ -94,8 +94,8 @@ function colourCycle( ttime ) {
 	
 	if (rgbTime == 0)
 		rgbTime = ttime;
-///////////////////////////////////
-	if (ttime - rgbTime > 1){
+////////////// 1000 = 1 second //////////////
+	if (ttime - rgbTime > 100){
 		if (swR==0){
 			if (ccRed < 254)
 				ccRed += 1;

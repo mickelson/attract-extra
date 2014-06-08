@@ -1,5 +1,5 @@
 // List Title
-romListSurf <- fe.add_surface ( fe.layout.width, 100);
+romListSurf <- fe.add_surface ( fe.layout.width, 200);
 romShadow <- romListSurf.add_text( "[ListFilterName]", list_X + 5, 6, fe.layout.width - 2, 82 );
 romShadow.align = Align.Centre;
 romShadow.style = Style.Bold;
@@ -9,11 +9,11 @@ romList.align = Align.Centre;
 romList.style = Style.Bold;
 
 // List Position
-detailShadow <- fe.add_text( "[ListEntry]/[ListSize]", -1, 100, fe.layout.width, 33 );
+detailShadow <- romListSurf.add_text( "[ListEntry]/[ListSize]", -1, 100, fe.layout.width, 33 );
 detailShadow.align = Align.Centre;
 detailShadow.style = Style.Bold;
 detailShadow.set_rgb (0,0,0);
-listPos <- fe.add_text( "[ListEntry]/[ListSize]", 0, 100, fe.layout.width, 32 );
+listPos <- romListSurf.add_text( "[ListEntry]/[ListSize]", 0, 100, fe.layout.width, 32 );
 listPos.align = Align.Centre;
 listPos.style = Style.Bold;
 
@@ -22,9 +22,11 @@ gameTitleShadow <- fe.add_text( "[Title] ([Year])", title_X, title_Y, fe.layout.
 gameTitleShadow.align = Align.Centre;
 gameTitleShadow.style = Style.Bold;
 gameTitleShadow.set_rgb (0,0,0);
+gameTitleShadow.alpha = 80;
 gameTitle <- fe.add_text( "[Title] ([Year])", (title_X - 2), (title_Y - 2), fe.layout.width, titleSize );
 gameTitle.align = Align.Centre;
 gameTitle.style = Style.Bold;
+gameTitle.alpha = 90;
 
 local pinchTime = 0;
 local romListPinch = 0;
@@ -35,18 +37,18 @@ fe.add_ticks_callback( "textTickles" );
 function textTickles( ttime ) {
 	if (pinchTime == 0)
 		pinchTime = ttime;
-/////////////////////////////////////////////////////////
-	if (ttime - pinchTime > 0.5){
+////////////// 1000 = 1 second //////////////
+	if (ttime - pinchTime > 50){
 		if (swPinch==0){
 				romListPinch += 1;
-			if (romListPinch >= 75){
+			if (romListPinch >= 25){
 				swPinch = 1;
 			}
 		}
 		else 
 		if (swPinch==1){
 				romListPinch  -= 1;
-			if (romListPinch <= 25)
+			if (romListPinch <= 10)
 				swPinch = 0;
 		}
 		pinchTime = 0;

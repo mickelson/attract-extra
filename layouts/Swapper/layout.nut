@@ -43,26 +43,22 @@ switch (layoutSettings["screenSize"]){
 	switch (layoutSettings["rotated"]){
 		case "Yes": 	fe.layout.width=768; 	fe.layout.height=1360;		break;
 		case "No" :		fe.layout.width=1360;	fe.layout.height=768;		break;
-	}
-	break;
+	}	break;
 	case "1280x1024":
 	switch (layoutSettings["rotated"]){
 		case "Yes": 	fe.layout.width=1024; 	fe.layout.height=1280;		break;
 		case "No" :		fe.layout.width=1280;	fe.layout.height=1024;		break;
-	}
-	break;
+	}	break;
 	case "1280x768":
 	switch (layoutSettings["rotated"]){
 		case "Yes": 	fe.layout.width=768; 	fe.layout.height=1280;		break;
 		case "No" :		fe.layout.width=1280;	fe.layout.height=768;		break;
-	}
-	break;
+	}	break;
 	case "1280x720":
 	switch (layoutSettings["rotated"]){
 		case "Yes": 	fe.layout.width=720; 	fe.layout.height=1280;		break;
 		case "No" :		fe.layout.width=1280;	fe.layout.height=720;		break;
-	}
-	break;
+	}	break;
 }
 // Globals
 list_X <- 10;	
@@ -91,49 +87,44 @@ local noShader = fe.add_shader( Shader.Empty );
 backGroundShader <- noShader;
 videoShader <- noShader;
 titleShader <- noShader;
-// Local Settings
-local Bloom = noShader;
-local Blur = noShader;
-local Pixel = noShader;
-local Scanlines = noShader;
 local None = noShader;
 
 if ( layoutSettings["enable_shaders"] == "Yes" ){
-	Bloom		= fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );
-	Blur 		= fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
-					Blur.set_param("blurDark", 0.7);
-	Pixel		= fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );
-					Pixel.set_param("pixelDark", 2.7);
-	Scanlines 	= fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );
-} else 
-if ( layoutSettings["enable_shaders"] == "No" ){
-	Bloom = Blur = Pixel = Scanlines = noShader;
-}
-
-switch (layoutSettings["bgndShader"]){
-	case "Blur": 		backGroundShader = Blur;		
-						backGroundShader.set_param("blurDark", 1.6);
-						break;
-	case "Pixel":		backGroundShader = Pixel;
-						backGroundShader.set_param("pixelDark", 0.4);
-						break;
-	case "None": 		backGroundShader = noShader;	
-						break;
-}
-switch (layoutSettings["vidShader"]){
-	case "Blur": 		videoShader = Blur;				break;
-	case "Pixel":		videoShader = Pixel;			break;
-	case "Scanlines": 	videoShader = Scanlines; 		break;
-	case "Bloom": 		videoShader = Bloom;			break;
-	case "None": 		videoShader = noShader;			break;
-}
-switch (layoutSettings["titShader"]){
-	case "Blur": 		titleShader = Blur;				break;
-	case "Pixel":		titleShader = Pixel;			break;
-	case "Scanlines": 	titleShader = Scanlines;		break;
-	case "Bloom": 		titleShader = Bloom;			break;
-	case "None": 		titleShader = noShader;			break;
-}
+	switch (layoutSettings["bgndShader"]){
+		case "Blur": 		backGroundShader=fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
+								backGroundShader.set_param("blurDark", 1.6);								break;
+		case "Pixel":		backGroundShader=fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );			
+								backGroundShader.set_param("pixelDark", 0.4);								break;
+		case "Scanlines": 	backGroundShader=fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );
+								backGroundShader.set_param("scannerDarkly", -0.5);							break;
+		case "Bloom": 		backGroundShader=fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );	break;
+		case "None": 		backGroundShader = noShader; break;
+	}
+} else backGroundShader = noShader;
+if ( layoutSettings["enable_shaders"] == "Yes" ){
+	switch (layoutSettings["vidShader"]){
+		case "Blur": 		videoShader=fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
+								videoShader.set_param("blurDark", 0.7);										break;
+		case "Pixel":		videoShader=fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );			
+								videoShader.set_param("pixelDark", 1.3);									break;
+		case "Scanlines": 	videoShader=fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );
+								videoShader.set_param("scannerDarkly", 1.2);								break;
+		case "Bloom": 		videoShader=fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );		break;
+		case "None": 		videoShader = noShader; break;
+	}
+} else videoShader = noShader;
+if ( layoutSettings["enable_shaders"] == "Yes" ){
+	switch (layoutSettings["titShader"]){
+		case "Blur": 		titleShader=fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
+								titleShader.set_param("blurDark", 0.7);										break;
+		case "Pixel":		titleShader=fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );			
+								titleShader.set_param("pixelDark", 1.2);									break;
+		case "Scanlines": 	titleShader=fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );			break;
+								titleShader.set_param("scannerDarkly", 1.4);								break;
+		case "Bloom": 		titleShader=fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );		break;
+		case "None": 		titleShader = noShader; break;
+	}
+} else titleShader = noShader;
 
 wheelArt <- (layoutSettings["title_art"]);
 
