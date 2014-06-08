@@ -1,8 +1,3 @@
-
-function set_bright( r, g, b, o ) {
-	o.set_rgb( r, g, b );
-}
-
 local message = fe.add_text("Player Ready...",0,200,fe.layout.width,80);
 message.alpha = 0;
 message.style = Style.Bold;
@@ -42,15 +37,13 @@ function new_transitions( ttype, var, ttime ) {
 		break;
 
 	case Transition.FromGame:
-		if ( ttime < 255 )
-		{
+		if ( ttime < 255 ){
 			foreach (o in fe.obj)
 				o.alpha = ttime;
 			message.alpha = 0;
 			return true;
 		}
-		else
-		{
+		else{
 			foreach (o in fe.obj)
 				o.alpha = 255;
 			message.alpha = 0;
@@ -58,15 +51,13 @@ function new_transitions( ttype, var, ttime ) {
 		break;
 
 	case Transition.EndLayout:
-		if ( ttime < 255 )
-		{
+		if ( ttime < 255 ){
 			foreach (o in fe.obj)
 				o.alpha = 255 - ttime;
 			message.alpha = 0;
 			return true;
 		}
-		else
-		{
+		else{
 			foreach (o in fe.obj)
 				o.alpha = 255;
 			message.alpha = 0;
@@ -74,8 +65,7 @@ function new_transitions( ttype, var, ttime ) {
 		break;
 
 	case Transition.ToGame:
-		if ( ttime < 255 )
-		{
+		if ( ttime < 255 ){
 			foreach (o in fe.obj)
 				o.alpha = 255 - ttime;
 			message.alpha = ttime;
@@ -86,89 +76,68 @@ function new_transitions( ttype, var, ttime ) {
 	return false;
 }
 
-fe.add_ticks_callback( "tick" );
+fe.add_ticks_callback( "colourCycle" );
 	//
 local swR = 0;
 local swG = 0;
 local swB = 0;
-local romListRed = 0;
-local romListGreen = 0;
-local romListBlue = 0;
+local ccRed = 0;
+local ccGreen = 0;
+local ccBlue = 0;
 local rgbTime = 0;
 	
 local pinchTime = 0;
 local romListPinch = 0;
 local swPinch = 0;
 
-function tick( ttime ) {
+function colourCycle( ttime ) {
 	
 	if (rgbTime == 0)
 		rgbTime = ttime;
-/////////////////////////////////////////////////////////
-	if (ttime - rgbTime > 2){
+///////////////////////////////////
+	if (ttime - rgbTime > 1){
 		if (swR==0){
-			if (romListRed < 254)
-				romListRed += 1;
-			if (romListRed >= 254)
+			if (ccRed < 254)
+				ccRed += 1;
+			if (ccRed >= 254)
 				swR = 1;
 		}
 		else if (swR==1){
-			if (romListRed > 100)
-				romListRed  -= 2;
-			if (romListRed <= 100)
+			if (ccRed > 100)
+				ccRed  -= 2;
+			if (ccRed <= 100)
 				swR = 0;
 		}
 		///////////////////////////
 		if (swG==0){
-			if (romListGreen < 254)
-				romListGreen += 2;
-			if (romListGreen >= 254)
+			if (ccGreen < 254)
+				ccGreen += 2;
+			if (ccGreen >= 254)
 				swG = 1;
 		}
 		else if (swG==1){
-			if (romListGreen > 100)
-				romListGreen  -= 1;
-			if (romListGreen <= 100)
+			if (ccGreen > 100)
+				ccGreen  -= 1;
+			if (ccGreen <= 100)
 				swG = 0;
 		}
 		///////////////////////////
 		if (swB==0){
-			if (romListBlue < 254)
-				romListBlue += 1.5;
-			if (romListBlue >= 254)
+			if (ccBlue < 254)
+				ccBlue += 1.5;
+			if (ccBlue >= 254)
 				swG = 1;
 		}
 		else if (swB==1){
-			if (romListBlue > 100)
-				romListBlue  -= 1.5;
-			if (romListBlue <= 100)
+			if (ccBlue > 100)
+				ccBlue  -= 1.5;
+			if (ccBlue <= 100)
 				swG = 0;
 		}
 		rgbTime = 0;
 	}
-/////////////////////////////////////////////////////////
-	set_bright( romListRed, romListGreen, romListBlue, romList );
-	set_bright( romListRed, romListGreen, romListBlue, gameTitle );
-	set_bright( romListRed, romListGreen, romListBlue, listPos );
-	
-	
-	if (pinchTime == 0)
-		pinchTime = ttime;
-/////////////////////////////////////////////////////////
-	if (ttime - pinchTime > 0.5){
-		if (swPinch==0){
-				romListPinch += 1;
-			if (romListPinch >= 75){
-				swPinch = 1;
-			}
-		}
-		else 
-		if (swPinch==1){
-				romListPinch  -= 1;
-			if (romListPinch <= 25)
-				swPinch = 0;
-		}
-		pinchTime = 0;
-	}
-	romListSurf.pinch_x = -(romListPinch);	
+////////////////////////////////////////////
+	romList.set_rgb(ccRed, ccGreen, ccBlue);
+	gameTitle.set_rgb(ccRed, ccGreen, ccBlue);
+	listPos.set_rgb(ccRed, ccGreen, ccBlue);	
 }
