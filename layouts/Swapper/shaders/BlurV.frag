@@ -1,6 +1,7 @@
 //BlurV.frag
 
 uniform sampler2D screenTexture;
+uniform float blurDark; //1.7
 const float blurSize = 0.7/256.0;
  
 void main(void)
@@ -16,5 +17,5 @@ void main(void)
    sum += texture2D(screenTexture, vec2(vTexCoord.x, vTexCoord.y + 2.0*blurSize)) * 0.12;
    sum += texture2D(screenTexture, vec2(vTexCoord.x, vTexCoord.y + 3.0*blurSize)) * 0.09;
    sum += texture2D(screenTexture, vec2(vTexCoord.x, vTexCoord.y + 4.0*blurSize)) * 0.05;
-   gl_FragColor = sum /1.7;
+   gl_FragColor = sum / blurDark;
 }

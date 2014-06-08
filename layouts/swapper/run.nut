@@ -94,76 +94,81 @@ local swB = 0;
 local romListRed = 0;
 local romListGreen = 0;
 local romListBlue = 0;
-local redTime = 0;
-local greenTime = 0;
-local blueTime = 0;
+local rgbTime = 0;
 	
+local pinchTime = 0;
+local romListPinch = 0;
+local swPinch = 0;
+
 function tick( ttime ) {
 	
-	if (redTime == 0)
-		redTime = ttime;
-	if (greenTime == 0)
-		greenTime = ttime;
-	if (blueTime == 0)
-		blueTime = ttime;
+	if (rgbTime == 0)
+		rgbTime = ttime;
 /////////////////////////////////////////////////////////
-	if (ttime - redTime > 0.15){
+	if (ttime - rgbTime > 2){
 		if (swR==0){
 			if (romListRed < 254)
-				romListRed += 3;
-			if (romListRed >= 254){
+				romListRed += 1;
+			if (romListRed >= 254)
 				swR = 1;
-			}
 		}
-		else 
-		if (swR==1){
+		else if (swR==1){
 			if (romListRed > 100)
-				romListRed  -= 3;
-			if (romListRed <= 100){
+				romListRed  -= 2;
+			if (romListRed <= 100)
 				swR = 0;
-			}
 		}
-		redTime = 0;
-	}
-/////////////////////////////////////////////////////////
-	if (ttime - greenTime > 0.1){
+		///////////////////////////
 		if (swG==0){
 			if (romListGreen < 254)
-				romListGreen += 1;
-			if (romListGreen >= 254){
+				romListGreen += 2;
+			if (romListGreen >= 254)
 				swG = 1;
-			}
 		}
-		else 
-		if (swR==1){
+		else if (swG==1){
 			if (romListGreen > 100)
 				romListGreen  -= 1;
-			if (romListGreen <= 100){
+			if (romListGreen <= 100)
 				swG = 0;
-			}
 		}
-		greenTime = 0;
+		///////////////////////////
+		if (swB==0){
+			if (romListBlue < 254)
+				romListBlue += 1.5;
+			if (romListBlue >= 254)
+				swG = 1;
+		}
+		else if (swB==1){
+			if (romListBlue > 100)
+				romListBlue  -= 1.5;
+			if (romListBlue <= 100)
+				swG = 0;
+		}
+		rgbTime = 0;
 	}
 /////////////////////////////////////////////////////////
-	if (ttime - blueTime > 0.05){
-		if (swR==0){
-			if (romListBlue < 254)
-				romListBlue += 1;
-			if (romListBlue >= 254){
-				swR = 1;
-			}
-		}
-		else 
-		if (swR==1){
-			if (romListBlue > 100)
-				romListBlue  -= 1;
-			if (romListBlue <= 100){
-				swR = 0;
-			}
-		}
-		blueTime = 0;
-	}
 	set_bright( romListRed, romListGreen, romListBlue, romList );
 	set_bright( romListRed, romListGreen, romListBlue, gameTitle );
 	set_bright( romListRed, romListGreen, romListBlue, listPos );
+	
+	
+	if (pinchTime == 0)
+		pinchTime = ttime;
+/////////////////////////////////////////////////////////
+	if (ttime - pinchTime > 0.5){
+		if (swPinch==0){
+				romListPinch += 1;
+			if (romListPinch >= 75){
+				swPinch = 1;
+			}
+		}
+		else 
+		if (swPinch==1){
+				romListPinch  -= 1;
+			if (romListPinch <= 25)
+				swPinch = 0;
+		}
+		pinchTime = 0;
+	}
+	romListSurf.pinch_x = -(romListPinch);	
 }

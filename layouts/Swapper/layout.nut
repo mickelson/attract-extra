@@ -17,7 +17,7 @@ class UserConfig {
 	enable_shaders="Yes";
 	
 	</ label="Background Shader", help="Choose a shader for the background",
-	options="Blur,Pixel,Scanlines,Bloom,None" />
+	options="Blur,Pixel,None" />
 	bgndShader="Blur";
 	
 	</ label="Video Shader", help="Choose a shader for the video",
@@ -101,27 +101,28 @@ local None = noShader;
 if ( layoutSettings["enable_shaders"] == "Yes" ){
 	Bloom		= fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );
 	Blur 		= fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
+					Blur.set_param("blurDark", 0.7);
 	Pixel		= fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );
+					Pixel.set_param("pixelDark", 2.7);
 	Scanlines 	= fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );
-} 
-else if ( layoutSettings["enable_shaders"] == "No" ){
-	Bloom = noShader;
-	Blur = noShader;
-	Pixel = noShader;
-	Scanlines = noShader;
-	backGroundShader = noShader;
+} else 
+if ( layoutSettings["enable_shaders"] == "No" ){
+	Bloom = Blur = Pixel = Scanlines = noShader;
 }
 
 switch (layoutSettings["bgndShader"]){
-	case "Blur": 		backGroundShader = Blur;		break;
-	case "Pixel":		backGroundShader = Pixel; 		break;
-	case "Scanlines": 	backGroundShader = Scanlines;	break;
-	case "Bloom": 		backGroundShader = Bloom;		break;
-	case "None": 		backGroundShader = noShader;	break;
+	case "Blur": 		backGroundShader = Blur;		
+						backGroundShader.set_param("blurDark", 1.6);
+						break;
+	case "Pixel":		backGroundShader = Pixel;
+						backGroundShader.set_param("pixelDark", 0.4);
+						break;
+	case "None": 		backGroundShader = noShader;	
+						break;
 }
 switch (layoutSettings["vidShader"]){
 	case "Blur": 		videoShader = Blur;				break;
-	case "Pixel":		videoShader = Pixel; 			break;
+	case "Pixel":		videoShader = Pixel;			break;
 	case "Scanlines": 	videoShader = Scanlines; 		break;
 	case "Bloom": 		videoShader = Bloom;			break;
 	case "None": 		videoShader = noShader;			break;
@@ -136,6 +137,7 @@ switch (layoutSettings["titShader"]){
 
 wheelArt <- (layoutSettings["title_art"]);
 
+//Drwa order can be changed via reordering of running scripts.
 fe.do_nut("video.nut");
 fe.do_nut("run.nut");
 fe.do_nut("text.nut");

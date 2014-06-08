@@ -1,5 +1,5 @@
 // List Title
-local romListSurf = fe.add_surface ( fe.layout.width, 100);
+romListSurf <- fe.add_surface ( fe.layout.width, 100);
 romShadow <- romListSurf.add_text( "[ListFilterName]", list_X + 5, 6, fe.layout.width - 2, 82 );
 romShadow.align = Align.Centre;
 romShadow.style = Style.Bold;
@@ -7,7 +7,6 @@ romShadow.set_rgb (0,0,0);
 romList <- romListSurf.add_text( "[ListFilterName]", list_X, 5, fe.layout.width - 5, 82 );
 romList.align = Align.Centre;
 romList.style = Style.Bold;
-romListSurf.pinch_x = -20;
 
 // List Position
 detailShadow <- fe.add_text( "[ListEntry]/[ListSize]", -1, 100, fe.layout.width, 33 );
