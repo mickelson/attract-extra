@@ -28,92 +28,55 @@ gameTitle.align = Align.Centre;
 gameTitle.style = Style.Bold;
 gameTitle.alpha = 90;
 
-fe.add_ticks_callback( "colourCycle" );
-	//
-local swR = 0;
-local swG = 0;
-local swB = 0;
-local ccRed = 0;
-local ccGreen = 0;
-local ccBlue = 0;
-local rgbTime = 0;
+///////////// function cycleValue /////////////
+// This function should be pretty self explanatory;
+// cycleValue( ttime, this is the tick time.
+// cnV, this keeps track of time passed since last call.
+// swV, this keeps track of weather to increment or decrement.
+// wkV, this is the value that is passed to the function, worked on and returned.
+// minV and maxV are the min/max to decrement or increment up to.
+// BY, is the amount to increase or decrease workVakue by.
+// speed is the length of time to wait to run again. 500 = half second.
+////
+// This function does require the table to work correctly.
 
-function colourCycle( ttime ) {
-	
-	if (rgbTime == 0)
-		rgbTime = ttime;
-////////////// 1000 = 1 second //////////////
-	if (ttime - rgbTime > 100){
-		if (swR==0){
-			if (ccRed < 254)
-				ccRed += 1;
-			if (ccRed >= 254)
-				swR = 1;
-		}
-		else if (swR==1){
-			if (ccRed > 100)
-				ccRed  -= 2;
-			if (ccRed <= 100)
-				swR = 0;
-		}
-		///////////////////////////
-		if (swG==0){
-			if (ccGreen < 254)
-				ccGreen += 2;
-			if (ccGreen >= 254)
-				swG = 1;
-		}
-		else if (swG==1){
-			if (ccGreen > 100)
-				ccGreen  -= 1;
-			if (ccGreen <= 100)
-				swG = 0;
-		}
-		///////////////////////////
-		if (swB==0){
-			if (ccBlue < 254)
-				ccBlue += 1.5;
-			if (ccBlue >= 254)
-				swG = 1;
-		}
-		else if (swB==1){
-			if (ccBlue > 100)
-				ccBlue  -= 1.5;
-			if (ccBlue <= 100)
-				swG = 0;
-		}
-		rgbTime = 0;
-	}
-////////////////////////////////////////////
-	romList.set_rgb(ccRed, ccGreen, ccBlue);
-	gameTitle.set_rgb(ccRed, ccGreen, ccBlue);
-	listPosition.set_rgb(ccRed, ccGreen, ccBlue);	
+cycleVTable <-{
+	"cnListPinch" : 0,	"swListPinch" : 0,	"wkListPinch" : 0,
+	"cnListRed" : 0,	"swListRed" : 0,	"wkListRed" : 0,
+	"cnListGreen" : 0,	"swListGreen" : 0,	"wkListGreen" : 0,
+	"cnListBlue" : 0,	"swListBlue" : 0,	"wkListBlue" : 0,
 }
-
-local pinchTime = 0;
-local romListPinch = 0;
-local swPinch = 0;
-
-fe.add_ticks_callback( "textTickles" );
-
-function textTickles( ttime ) {
-	if (pinchTime == 0)
-		pinchTime = ttime;
-////////////// 1000 = 1 second //////////////
-	if (ttime - pinchTime > 50){
-		if (swPinch==0){
-				romListPinch += 1;
-			if (romListPinch >= 25){
-				swPinch = 1;
-			}
+function cycleValue( ttime, cnV, swV, wkV,
+					  minV, maxV, BY, speed ) {
+	if (cycleVTable[cnV] == 0)
+		cycleVTable[cnV] = ttime;
+	if (ttime - cycleVTable[cnV] > speed){
+		if (cycleVTable[swV]==0){
+			cycleVTable[wkV] += BY;
+			if (cycleVTable[wkV] >= maxV)
+				cycleVTable[swV] = 1;
 		}
 		else 
-		if (swPinch==1){
-				romListPinch  -= 1;
-			if (romListPinch <= 10)
-				swPinch = 0;
-		}
-		pinchTime = 0;
-	}
-	romListSurf.pinch_x = -(romListPinch);	
+		if (cycleVTable[swV]==1){
+			cycleVTable[wkV]  -= BY;
+			if (cycleVTable[wkV] <= minV)
+				cycleVTable[swV] = 0;
+		} 
+		cycleVTable[cnV] = 0;
+	} 
+	return cycleVTable[wkV];	
 }
+
+fe.add_ticks_callback( "textTickles" );
+function textTickles( ttime ) {		
+	//To get a negative, need to use a temporary var and - it.
+	local temp = cycleValue(ttime, "cnListPinch", "swListPinch", "wkListPinch", 10, 25, 1, 20);
+	romListSurf.pinch_x = -temp;
+	local RED = cycleValue(ttime,"cnListRed","swListRed","wkListRed",100,254,1,20);
+	local GREEN = cycleValue(ttime,"cnListGreen","swListGreen","wkListGreen",100,254,1.5,20);
+	local BLUE = cycleValue(ttime,"cnListBlue","swListBlue","wkListBlue",100,254,2,20);
+	romList.set_rgb(RED, GREEN, BLUE);
+	gameTitle.set_rgb(RED, GREEN, BLUE);
+	listPosition.set_rgb(RED, GREEN, BLUE);
+}
+
