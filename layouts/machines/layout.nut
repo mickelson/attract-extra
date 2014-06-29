@@ -13,7 +13,7 @@ fe.layout.font = "slicker";
 fe.add_artwork( "marquee", 312, 30, 400, 115 );
 local lb = fe.add_listbox( 43, 261, 490, 417 );
 lb.charsize = 22;
-fe.add_artwork( "screen", 577, 263, 412, 412 );
+fe.add_artwork( "snap", 577, 263, 412, 412 );
 fe.add_image( "machinesselbg.png", 0, 0, 1024, 768 );
 
 local l = fe.add_text( "[ListTitle]", 45, 195, 940, 25 );
