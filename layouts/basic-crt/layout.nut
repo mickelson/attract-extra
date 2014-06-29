@@ -8,7 +8,7 @@ local surf = fe.add_surface( 640, 480 );
 
 local shader = fe.add_shader( Shader.VertexAndFragment, "crt.vert", "crt.frag" );
 shader.set_param( "rubyInputSize", 640, 480 );
-shader.set_param( "rubyOutputSize", 640, 480 );
+shader.set_param( "rubyOutputSize", ScreenWidth, ScreenHeight );
 shader.set_param( "rubyTextureSize", 640, 480 );
 shader.set_texture_param( "rubyTexture" );
 
