@@ -1,6 +1,57 @@
 //
 // Attract-Mode Front-End - "Reflect" sample layout
 //
+class UserConfig {
+	</ label="Colour Scheme", help="Select the menu colour scheme.", options="Blue,Green,Red,Yellow,Purple,Brown,Grey" />
+	colour="Blue";
+};
+
+local config = fe.get_config();
+
+class Colour
+{
+	r = 0; g = 0; b = 0;
+
+	constructor( rr, gg, bb )
+	{
+		r = rr; g = gg; b = bb;
+	}
+};
+
+local bg_colour = Colour( 0, 0, 255 );
+local fg_colour = Colour( 255, 255, 255 );
+switch ( config[ "colour" ] )
+{
+	case "Blue":
+		bg_colour = Colour( 0, 0, 255 );
+		fg_colour = Colour( 200, 200, 200 );
+		break;
+	case "Green":
+		bg_colour = Colour( 0, 100, 0 );
+		fg_colour = Colour( 80, 255, 80 );
+		break;
+	case "Red":
+		bg_colour = Colour( 180, 0, 0 );
+		fg_colour = Colour( 255, 190, 190 );
+		break;
+	case "Yellow":
+		bg_colour = Colour( 255, 255, 0 );
+		fg_colour = Colour( 100, 100, 0 );
+		break;
+	case "Purple":
+		bg_colour = Colour( 100, 0, 100 );
+		fg_colour = Colour( 250, 100, 250 );
+		break;
+	case "Brown":
+		bg_colour = Colour( 80, 80, 0 );
+		fg_colour = Colour( 200, 200, 100 );
+		break;
+	case "Grey":
+		bg_colour = Colour( 60, 60, 60 );
+		fg_colour = Colour( 180, 180, 180 );
+		break;
+}
+
 fe.layout.width=640;
 fe.layout.height=480;
 
@@ -48,6 +99,8 @@ class LBEntry
 		else
 			bg = fe.add_clone( lb_bg_image );
 
+		bg.set_rgb( bg_colour.r, bg_colour.g, bg_colour.b );
+
 		index_offset = io;
 		if ( io == 0 )
 		{
@@ -60,7 +113,10 @@ class LBEntry
 
 			text = fe.add_text( _get_name(), x, y, 320, 25 );
 
-			text.set_rgb( 255, 255, 0 );
+			if ( config["colour"] == "Yellow" )
+				text.set_rgb( 0, 0, 0 );
+			else
+				text.set_rgb( 255, 255, 0 );
 		}
 		else
 		{
@@ -70,6 +126,7 @@ class LBEntry
 			texts.set_rgb( 0, 0, 0 );
 
 			text = fe.add_text( _get_name(), x, y, 190, 20 );
+			text.set_rgb( fg_colour.r, fg_colour.g, fg_colour.b );
 
 			text.align = texts.align = Align.Right;
 		}
@@ -125,7 +182,18 @@ class RedBubble
 
 	constructor( t, x, y, w, h, pad=0 )
 	{
-		bg = fe.add_image( "bubbler.png", x - 15, y + 1 - pad, w + 15, h + 2 * pad );
+		if ( lb_bg_image == 0 )
+			bg = lb_bg_image = fe.add_image( "bubbleo.png" );
+		else
+			bg = fe.add_clone( lb_bg_image );
+
+		bg.set_pos( x - 15, y + 1 - pad, w + 15, h + 2 * pad );
+
+		if ( config[ "colour" ] == "Red" )
+			bg.set_rgb( 0, 0, 255 );
+		else
+			bg.set_rgb( 220, 0, 0 );
+
 		texts = fe.add_text( t, x + 1, y + 1, w, h );
 		texts.set_rgb( 0, 0, 0 );
 		text = fe.add_text( t, x, y, w, h );
