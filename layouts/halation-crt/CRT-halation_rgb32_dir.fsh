@@ -26,26 +26,27 @@
 #define FIX(c) max(abs(c), 1e-5);
 #define TEX2D(c) texture2D(mpass_texture, (c)).rgb
 varying vec2 texCoord;
-varying vec2 aspect;
-varying float R;
-varying float cornersize;
-varying float cornersmooth;
-
 //Normal MAME GLSL Uniforms
 uniform sampler2D mpass_texture;
 uniform vec2      color_texture_sz;         // size of color_texture
 uniform vec2      color_texture_pow2_sz;    // size of color texture rounded up to power of 2
-
+////////////////////////////////////////////////////////////////////////////
+// CRT Variables
+uniform vec2 aspect;
+uniform float R;
+uniform float cornersize;
+uniform float cornersmooth;
 // Filter Variables
-varying float hardScan;
-varying float maskDark;
-varying float maskLight;
-varying float hardPix;
+uniform float hardScan;
+uniform float maskDark;
+uniform float maskLight;
+uniform float hardPix;
 // Bloom Variables
-varying float hardBloomScan;
-varying float hardBloomPix;
-varying float bloomAmount;
-
+uniform float hardBloomScan;
+uniform float hardBloomPix;
+uniform float bloomAmount;
+uniform int ATTRACTMODE;
+////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------
 
 // sRGB to Linear.

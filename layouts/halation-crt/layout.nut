@@ -7,10 +7,45 @@ fe.layout.height=480;
 local surf = fe.add_surface( 640, 480 );
 
 local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-halation.vsh", "CRT-halation_rgb32_dir.fsh" );
+                shader.set_param( "ATTRACTMODE", 1 );
+                // aspect ratio
+                shader.set_param( "aspect", 1.0, 0.9 );
+                // Radius of curvature
+                shader.set_param( "R", 4.0 );
+                // Size of corners
+                shader.set_param( "cornersize", 0.038 );
+                // Smoothing corners (100-1000)
+                shader.set_param( "cornersmooth", 400.0 );
+                // Hardness of Scanline -8.0 = soft -16.0 = medium
+                shader.set_param( "hardScan", -10.0 );
+                // Hardness of pixels in scanline -2.0 = spoft, -4.0 = hard
+                shader.set_param( "hardPix", -4.0 );
+                //Sets how dark a "dark subpixel" is in the aperture pattern.
+                shader.set_param( "maskDark", 0.4 );
+                //Sets how dark a "bright subpixel" is in the aperture pattern
+                shader.set_param( "maskLight", 1.8 );
+                // BLOOM VARS //
+                // Hardness of short vertical bloom.
+                //  -1.0 = wide to the point of clipping (bad)
+                //  -1.5 = wide
+                //  -4.0 = not very wide at all
+                shader.set_param( "hardBloomScan", -2.0 );
+                // Hardness of short horizontal bloom.
+                //  -0.5 = wide to the point of clipping (bad)
+                //  -1.0 = wide
+                //  -2.0 = not very wide at all
+                shader.set_param( "hardBloomPix", -1.5 );
+                // Amount of small bloom effect.
+                //  1.0/1.0 = only bloom
+                //  1.0/16.0 = what I think is a good amount of small bloom
+                //  0.0     = no bloom
+                shader.set_param( "bloomAmount", 1.0/6.0 );
+                
+                // Standard Shader stuff. Can probably send image.width to shader
                 shader.set_param( "color_texture_sz", 640, 480 );
                 shader.set_param( "color_texture_pow2_sz", 640, 480 );
                 shader.set_texture_param( "mpass_texture" );
-
+    
 surf.shader = shader;
 
 surf.add_artwork( "snap", 348, 152, 262, 262 );
