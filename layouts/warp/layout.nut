@@ -7,32 +7,38 @@
 // For best results use this layout with the wireframe artworks posted
 // by Le Chuck over at the BYOAC forum:
 //
-// http://forum.arcadecontrols.com/index.php/topic,137291.msg1420703.html#msg1420703 
+// http://forum.arcadecontrols.com/index.php/topic,137291.msg1420703.html#msg1420703
 //
 class UserConfig {
-	</ label="Controls: Up", help="Set controls for navigating the starfield", is_input="yes" />
-	a_up="";
+	</ label="Controls: Up", help="Set controls for navigating the starfield", is_input="yes", order=1 />
+	up="";
 
-	</ label="Controls: Down", help="Set controls for navigating the starfield", is_input="yes" />
-	b_down="";
+	</ label="Controls: Down", help="Set controls for navigating the starfield", is_input="yes", order=2 />
+	down="";
 
-	</ label="Controls: Left", help="Set controls for navigating the starfield", is_input="yes" />
-	c_left="";
+	</ label="Controls: Left", help="Set controls for navigating the starfield", is_input="yes", order=3 />
+	left="";
 
-	</ label="Controls: Right", help="Set controls for navigating the starfield", is_input="yes" />
-	d_right="";
+	</ label="Controls: Right", help="Set controls for navigating the starfield", is_input="yes", order=4 />
+	right="";
 
-	</ label="Speed", help="Speed of travel through starfield (-25 to 25, default=4)" />
-	e_speed="4";
+	</ label="Speed", help="Speed of travel through starfield (-25 to 25, default=4)", order=5 />
+	speed="4";
 
-	</ label="Artwork Label", help="Set the artwork to display", options="snap,wheel,flyer,marquee" />
-	f_artwork="snap";
+	</ label="Artwork Label", help="Set the artwork to display", options="snap,wheel,flyer,marquee", order=6 />
+	artwork="snap";
 
-	</ label="Artwork Size", help="Set the size of the displayed artwork", options="Small,Medium,Large" />
-	g_art_size="Large";
+	</ label="Artwork Size", help="Set the size of the displayed artwork", options="Small,Medium,Large", order=7 />
+	art_size="Large";
 
-	</ label="Transition", help="Set the artwork transition type", options="Fade,Navigate" />
-	h_transition="Fade";
+	</ label="Transition", help="Set the artwork transition type", options="Fade,Navigate", order=8 />
+	transition="Fade";
+
+	</ label="Message #1", help="Message to display at bottom of screen", order=9 />
+	msg1="Press Left/Right to Select Game";
+
+	</ label="Message #2", help="Message to display at bottom of screen", order=10 />
+	msg2="Press Trigger to Launch";
 }
 
 local my_config = fe.get_config();
@@ -49,7 +55,7 @@ local star_colour_ratio=1.0/z;
 local mouse_x=x;
 local mouse_y=y;
 local star_ratio=256;
-local base_speed = my_config["e_speed"].tofloat(); 
+local base_speed = my_config["speed"].tofloat(); 
 if ( abs( base_speed ) > 25 ) // speed limits...
 	base_speed=25.0;
 
@@ -100,12 +106,12 @@ for(local i=0;i<n;i++)
 local snap_width = 480;
 local snap_height = 360;
 
-if ( my_config["g_art_size"] == "Small" )
+if ( my_config["art_size"] == "Small" )
 {
 	snap_width = 240;
 	snap_height = 180;
 }
-else if ( my_config["g_art_size"] == "Medium" )
+else if ( my_config["art_size"] == "Medium" )
 {
 	snap_width = 360;
 	snap_height = 270;
@@ -114,12 +120,26 @@ else if ( my_config["g_art_size"] == "Medium" )
 local snap_x = ( fe.layout.width - snap_width ) / 2;
 local snap_y = ( fe.layout.height - snap_height ) / 2;
 
-local snap_back = fe.add_artwork( my_config["f_artwork"], snap_x, snap_y, snap_width, snap_height );
+local snap_back = fe.add_artwork( my_config["artwork"], snap_x, snap_y, snap_width, snap_height );
 snap_back.alpha = 0;
 snap_back.preserve_aspect_ratio=true;
 
-local snap = fe.add_artwork( my_config["f_artwork"], snap_x, snap_y, snap_width, snap_height );
+local snap = fe.add_artwork( my_config["artwork"], snap_x, snap_y, snap_width, snap_height );
 snap.preserve_aspect_ratio=true;
+
+local surf = fe.add_surface( 500, 80 );
+surf.set_pos( 70, 375, 500, 80 );
+surf.pinch_x = -180;
+
+if (( my_config["msg1"].len() > 0 ) || ( my_config["msg2"].len() > 0 ))
+{
+	local msg1 = surf.add_text( my_config["msg1"], 0, 0, 500, 25 );
+	local msg2 = surf.add_text( my_config["msg2"], 0, 40, 500, 35 );
+	msg1.set_rgb( 255, 255, 0 );
+	msg2.set_rgb( 255, 255, 0 );
+	msg1.alpha=msg2.alpha=140;
+	msg1.style=msg2.style=Style.Bold;
+}
 
 function anim()
 {
@@ -206,10 +226,10 @@ local accumulate_x=0;
 
 function my_tick( ttime )
 {
-	local up = fe.get_input_pos( my_config["a_up"] );
-	local down = fe.get_input_pos( my_config["b_down"] );
-	local left = fe.get_input_pos( my_config["c_left"] );
-	local right = fe.get_input_pos( my_config["d_right"] );
+	local up = fe.get_input_pos( my_config["up"] );
+	local down = fe.get_input_pos( my_config["down"] );
+	local left = fe.get_input_pos( my_config["left"] );
+	local right = fe.get_input_pos( my_config["right"] );
 	local cursor_x=x;
 	local cursor_y=y;
 	if ( up > 0 )
@@ -239,7 +259,7 @@ function my_tick( ttime )
 	mouse_x=cursor_x-x;
 	mouse_y=cursor_y-y;
 
-	if ( my_config["h_transition"] == "Navigate" )
+	if ( my_config["transition"] == "Navigate" )
 	{
 		if ( accumulate_x > 0 )
 		{
@@ -302,6 +322,16 @@ function my_transition( ttype, var, ttime )
 				snap.x = ( fe.layout.width - snap.width ) / 2;
 				snap.y = ( fe.layout.height - snap.height ) / 2;
 				star_speed= base_speed * 4;
+
+				if ( ttime < 500 )
+				{
+					surf.set_pos( 70 - ttime / 2,
+						375 + ttime / 5,
+						500 + ttime,
+						80 + ttime );
+
+					surf.pinch_x = -180 - ttime;
+				}
 			}
 			else 
 			{
@@ -318,10 +348,12 @@ function my_transition( ttype, var, ttime )
 		snap.width = snap_width;
 		snap.height = snap_height;
 		snap.visible=true;
+		surf.set_pos( 70, 375, 500, 80 );
+		surf.pinch_x = -180;
 		break;
 
 	case Transition.ToNewSelection:
-		if ( my_config["h_transition"] == "Fade" )
+		if ( my_config["transition"] == "Fade" )
 		{
 			if ( ttime < 125 )
 			{
