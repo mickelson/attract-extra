@@ -259,6 +259,6 @@ void main(void)
     gl_FragColor.rgb += Bloom(pos) * bloomAmount;
     gl_FragColor.rb *= vec3(cval);
 #endif
-    //gl_FragColor.a = 1.0;
+    gl_FragColor.a = 1.0;
     gl_FragColor.rgb = ToSrgb(gl_FragColor.rgb);
 }
