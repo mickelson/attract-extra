@@ -251,13 +251,13 @@ void main(void)
 {
     vec2 pos = transform(texCoord); // Curvature
     float cval = corner(pos); // Corners
-#if 1
+#if 0
     gl_FragColor.rgb = Tri(pos) * Mask(gl_FragCoord.xy);
     gl_FragColor.rgb = mix(gl_FragColor.rgb, Bloom(pos), bloomAmount) * vec3(cval);
 #else
     gl_FragColor.rgb = Tri(pos) * Mask(gl_FragCoord.xy);
     gl_FragColor.rgb += Bloom(pos) * bloomAmount;
-    gl_FragColor.rb *= vec3(cval);
+    gl_FragColor.rgb *= vec3(cval);
 #endif
     gl_FragColor.a = 1.0;
     gl_FragColor.rgb = ToSrgb(gl_FragColor.rgb);
