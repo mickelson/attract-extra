@@ -11,11 +11,13 @@ local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-halation.vsh", "CRT
                 // 0 = VGA style shadow mask.
                 // 1.0 = Very compressed TV style shadow mask.
                 // 2.0 = Aperture-grille.
-                shader.set_param( "aperature_type", 1.0 );
-                // aspect ratio
-                shader.set_param( "aspect", 1.0, 0.9 );
+                shader.set_param( "aperature_type", 2.0 );
                 // Radius of curvature
-                shader.set_param( "R", 4.0 );
+                // R = 15.0 | pictureScale = 0.79 == Fairly normal picture
+                // R = 10.0 | pictureScale = 0.84 == inbetween
+                // R = 5.0 | pictureScale = 0.72 == FISH BOWLSTYLE
+                shader.set_param( "R", 15.0 );
+                shader.set_param( "pictureScale", 0.79);
                 // Size of corners
                 shader.set_param( "cornersize", 0.038 );
                 // Smoothing corners (100-1000)
@@ -34,11 +36,6 @@ local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-halation.vsh", "CRT
                 //  -1.5 = wide
                 //  -4.0 = not very wide at all
                 shader.set_param( "hardBloomScan", -1.8 );
-                // Hardness of short horizontal bloom.
-                //  -0.5 = wide to the point of clipping (bad)
-                //  -1.0 = wide
-                //  -2.0 = not very wide at all
-                shader.set_param( "hardBloomPix", -0.8 );
                 // Amount of small bloom effect.
                 //  1.0/1.0 = only bloom
                 //  1.0/16.0 = what I think is a good amount of small bloom

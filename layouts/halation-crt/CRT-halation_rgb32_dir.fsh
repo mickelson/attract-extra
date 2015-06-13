@@ -22,6 +22,7 @@ varying vec2 texCoord;
 uniform float R;
 uniform float cornersize;
 uniform float cornersmooth;
+uniform float pictureScale;
 
 //Normal MAME GLSL Uniforms
 uniform sampler2D mpass_texture;
@@ -35,7 +36,6 @@ uniform float maskLight;
 uniform float hardPix;
 // Bloom Variables
 uniform float hardBloomScan;
-uniform float hardBloomPix;
 uniform float bloomAmount;
 
 uniform float aperature_type;
@@ -201,9 +201,7 @@ float Bar(float pos,float bar)
 float intersect(vec2 xy)
 {
   float A = dot(xy,xy) + 1.0;
-  float B = 2.35 * -R;
-  float C = 2.0 * R; /// LARGER NUMBER = SMALLER PICTURE 2.2 - 3.0
-  return (-B - sqrt(B*B - 4.0 * A * C) ) / (2.0 * A);
+  return (R - sqrt( (-R)*(-R) - 4.0 * A * (R*pictureScale) ) ) / (2.0 * A);
 }
 vec2 bkwtrans(vec2 xy)
 {
