@@ -19,12 +19,9 @@ varying float hardBloomScan;
 varying float hardBloomPix;
 varying float bloomAmount;
 
-uniform int ATTRACTMODE;
-#if ATTRACTMODE == 1
-    #define MAME 0
-#elif ATTRACTMODE == 0
-    #define MAME 1
-#endif
+// Comment out to use Vars in AttractMode
+// Uncomment for use with Mame
+//#define MAME
 
 void main()
 {
@@ -34,7 +31,7 @@ void main()
     gl_Position     = ftransform();
     // Texture coords.
     texCoord = gl_TexCoord[0].xy;
-#if MAME == 1
+#ifdef MAME
     /// CRT GEOMETRY ///
     // aspect ratio
     aspect = vec2(1.0, 0.9);

@@ -7,7 +7,6 @@ fe.layout.height=480;
 local surf = fe.add_surface( 640, 480 );
 
 local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-halation.vsh", "CRT-halation_rgb32_dir.fsh" );
-                shader.set_param( "ATTRACTMODE", 1 );
                 // aspect ratio
                 shader.set_param( "aspect", 1.0, 0.9 );
                 // Radius of curvature
