@@ -15,19 +15,10 @@
 // Converted to MAME and AttractMode FE by Luke-Nukem (admin@garagearcades.co.nz)
 //  http://www.garagearcades.co.nz
 //
-// APERATURE_TYPE
-// 0 = VGA style shadow mask.
-// 1 = Very compressed TV style shadow mask.
-// 2 = Aperture-grille.
-uniform float aperature_type;
-// Bloom Type -=- 0 = Normal, 1 = additive
-uniform float additive_bloom;
-
 // FOR CRT GEOM
 #define FIX(c) max(abs(c), 1e-5);
 #define TEX2D(c) texture2D(mpass_texture, (c)).rgb
 varying vec2 texCoord;
-uniform vec2 aspect;
 uniform float R;
 uniform float cornersize;
 uniform float cornersmooth;
@@ -47,19 +38,10 @@ uniform float hardBloomScan;
 uniform float hardBloomPix;
 uniform float bloomAmount;
 
+uniform float aperature_type;
+uniform float additive_bloom;
+
 //------------------------------------------------------------------------
-
-// sRGB to Linear.
-// Assuing using sRGB typed textures this should not be needed.
-float ToLinear1(float c)
-{
-    return (c <= 0.04045) ? c / 12.92 : pow((c+0.055)/1.055,2.4);
-}
-vec3 ToLinear(vec3 c)
-{
-    return vec3(ToLinear1(c.r), ToLinear1(c.g), ToLinear1(c.b));
-}
-
 // Linear to sRGB.
 // Assuing using sRGB typed textures this should not be needed.
 float ToSrgb1(float c)
@@ -71,14 +53,24 @@ vec3 ToSrgb(vec3 c)
     return vec3(ToSrgb1(c.r), ToSrgb1(c.g), ToSrgb1(c.b));
 }
 
+
+// sRGB to Linear.
+// Assuing using sRGB typed textures this should not be needed.
+float ToLinear1(float c)
+{
+    return (c <= 0.04045) ? c / 12.92 : pow((c+0.055)/1.055,2.4);
+}
+vec3 ToLinear(vec3 c)
+{
+    return vec3(ToLinear1(c.r), ToLinear1(c.g), ToLinear1(c.b));
+}
 // Nearest emulated sample given floating point position and texel offset.
 // Also zero's off screen.
 vec3 Fetch(vec2 pos, vec2 off)
 {
-  pos = (floor(pos * color_texture_pow2_sz + off) + 0.5) / color_texture_pow2_sz;
+  pos = (floor(pos * color_texture_pow2_sz + off)) / color_texture_pow2_sz;
   return ToLinear(texture2D(mpass_texture, pos.xy).rgb);
 }
-
 // Distance in emulated pixels to nearest texel.
 vec2 Dist(vec2 pos)
 {
@@ -92,77 +84,58 @@ float Gaus(float pos, float scale)
     return exp2(scale * pos * pos);
 }
 
+// Return scanline weight.
+float preGaus(vec2 pos, float off, float scanf)
+{
+  float dst = Dist(pos).y;
+  return Gaus(dst + off, scanf);
+}
+
 // 3-tap Gaussian filter along horz line.
 vec3 Horz3(vec2 pos,float off)
 {
-  vec3 b = Fetch(pos, vec2(-1.0, off));
-  vec3 c = Fetch(pos, vec2( 0.0, off));
-  vec3 d = Fetch(pos, vec2( 1.0, off));
-  float dst = Dist(pos).x;
-  // Convert distance to weight.
-  float scale = hardPix;
-  float wb = Gaus(dst - 1.0, scale);
-  float wc = Gaus(dst + 0.0, scale);
-  float wd = Gaus(dst + 1.0, scale);
-  // Return filtered sample.
-  return (b * wb + c * wc + d * wd) / (wb + wc + wd);
-}
-
-// 5-tap Gaussian filter along horz line.
-vec3 Horz5(vec2 pos, float off){
   vec3 a = Fetch(pos, vec2(-2.0, off));
   vec3 b = Fetch(pos, vec2(-1.0, off));
   vec3 c = Fetch(pos, vec2( 0.0, off));
   vec3 d = Fetch(pos, vec2( 1.0, off));
-  vec3 e = Fetch(pos, vec2( 2.0, off));
+  vec3 e = Fetch(pos, vec2(-2.0, off));
   float dst = Dist(pos).x;
   // Convert distance to weight.
-  float scale = hardPix;
-  float wa = Gaus(dst - 2.0, scale);
-  float wb = Gaus(dst - 1.0, scale);
-  float wc = Gaus(dst + 0.0, scale);
-  float wd = Gaus(dst + 1.0, scale);
-  float we = Gaus(dst + 2.0, scale);
+  float wa = Gaus(dst - 2.0, hardPix);
+  float wb = Gaus(dst - 1.0, hardPix);
+  float wc = Gaus(dst + 0.0, hardPix);
+  float wd = Gaus(dst + 1.0, hardPix);
+  float we = Gaus(dst - 2.0, hardPix);
   // Return filtered sample.
-  return (a*wa+b*wb+c*wc+d*wd+e*we)/(wa+wb+wc+wd+we);}
-
-// Return scanline weight.
-float Scan(vec2 pos, float off)
-{
-  float dst = Dist(pos).y;
-  return Gaus(dst + off, hardScan);
-}
-
-// Return scanline weight for bloom.
-float BloomScan(vec2 pos, float off)
-{
-  float dst = Dist(pos).y;
-  return Gaus(dst + off, hardBloomScan);
+  //return (b * wb + c * wc + d * wd);
+  return (a*wa+b*wb+c*wc+d*wd+e*we)/(wa+wb+wc+wd+we);
 }
 
 // Allow nearest three lines to affect pixel.
-vec3 Tri(vec2 pos){
-  vec3 a=Horz3(pos,-1.0);
-  vec3 b=Horz5(pos, 0.0);
-  vec3 c=Horz3(pos, 1.0);
-  float wa=Scan(pos,-1.0);
-  float wb=Scan(pos, 0.0);
-  float wc=Scan(pos, 1.0);
-  return a*wa+b*wb+c*wc;}
+vec3 Tri(vec2 pos)
+{
+  vec3 a = Horz3(pos,-1.0);
+  vec3 b = Horz3(pos, 0.0);
+  vec3 c = Horz3(pos, 1.0);
+  float wa = preGaus(pos, -1.0, hardScan);
+  float wb = preGaus(pos,  0.0, hardScan);
+  float wc = preGaus(pos,  1.0, hardScan);
+  return a*wa+b*wb+c*wc;
+}
 
 // Small bloom.
 vec3 Bloom(vec2 pos)
 {
-  vec3 a=Horz3(pos,-2.0);
-  vec3 b=Horz5(pos,-1.0);
-  vec3 c=Horz3(pos, 0.0);
-  vec3 d=Horz5(pos, 1.0);
-  vec3 e=Horz3(pos, 2.0);
-  float wa=BloomScan(pos,-2.0);
-  float wb=BloomScan(pos,-1.0);
-  float wc=BloomScan(pos, 0.0);
-  float wd=BloomScan(pos, 1.0);
-  float we=BloomScan(pos, 2.0);
+  vec3 a = Horz3(pos,-2.0);
+  vec3 b = Horz3(pos,-1.0);
+  vec3 c = Horz3(pos, 0.0);
+  vec3 d = Horz3(pos, 1.0);
+  vec3 e = Horz3(pos, 2.0);
+  float wa = preGaus(pos, -2.0, hardBloomScan);
+  float wb = preGaus(pos, -1.0, hardBloomScan);
+  float wc = preGaus(pos,  0.0, hardBloomScan);
+  float wd = preGaus(pos,  1.0, hardBloomScan);
+  float we = preGaus(pos,  2.0, hardBloomScan);
   return a*wa+b*wb+c*wc+d*wd+e*we;}
 
 vec3 Mask(vec2 pos)
@@ -239,20 +212,20 @@ vec2 bkwtrans(vec2 xy)
   point /= vec2(R);
   float a = (-sqrt(5.0)) / (2.0); // SIZE
   float r = FIX(R*acos(a));
-  return point*r/sin(r/R);
+  return point * r / sin(r / R);
 }
 // POSITION
 vec2 transform(vec2 coord)
 {
   coord *= color_texture_pow2_sz / color_texture_sz;
-  coord = (coord-vec2(0.5))*aspect;
-  return (bkwtrans(coord)/aspect+vec2(0.5)) * color_texture_sz / color_texture_pow2_sz;
+  coord = (coord-vec2(0.5));
+  return (bkwtrans(coord) + vec2(0.5)) * color_texture_sz / color_texture_pow2_sz;
 }
 float corner(vec2 coord)
 {
   coord *= color_texture_pow2_sz / color_texture_sz;
   coord = (coord - vec2(0.5)) + vec2(0.5);
-  coord = min(coord, vec2(1.0)-coord) * aspect;
+  coord = min(coord, vec2(1.0)-coord);
   vec2 cdist = vec2(cornersize);
   coord = (cdist - min(coord,cdist));
   float dist = sqrt(dot(coord,coord));
