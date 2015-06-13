@@ -7,6 +7,11 @@ fe.layout.height=480;
 local surf = fe.add_surface( 640, 480 );
 
 local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-halation.vsh", "CRT-halation_rgb32_dir.fsh" );
+                // APERATURE_TYPE
+                // 0 = VGA style shadow mask.
+                // 1.0 = Very compressed TV style shadow mask.
+                // 2.0 = Aperture-grille.
+                shader.set_param( "aperature_type", 1.0 );
                 // aspect ratio
                 shader.set_param( "aspect", 1.0, 0.9 );
                 // Radius of curvature
@@ -28,17 +33,19 @@ local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-halation.vsh", "CRT
                 //  -1.0 = wide to the point of clipping (bad)
                 //  -1.5 = wide
                 //  -4.0 = not very wide at all
-                shader.set_param( "hardBloomScan", -2.0 );
+                shader.set_param( "hardBloomScan", -1.8 );
                 // Hardness of short horizontal bloom.
                 //  -0.5 = wide to the point of clipping (bad)
                 //  -1.0 = wide
                 //  -2.0 = not very wide at all
-                shader.set_param( "hardBloomPix", -1.5 );
+                shader.set_param( "hardBloomPix", -0.8 );
                 // Amount of small bloom effect.
                 //  1.0/1.0 = only bloom
                 //  1.0/16.0 = what I think is a good amount of small bloom
                 //  0.0     = no bloom
                 shader.set_param( "bloomAmount", 1.0/6.0 );
+                // Bloom Type -=- 0.0 = Normal, 1.0 = additive
+                shader.set_param( "additive_bloom", 1.0 );
                 
                 // Standard Shader stuff. Can probably send image.width to shader
                 shader.set_param( "color_texture_sz", 640, 480 );
