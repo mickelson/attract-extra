@@ -41,8 +41,8 @@ local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-halation.vsh", "CRT
                 //  1.0/16.0 = what I think is a good amount of small bloom
                 //  0.0     = no bloom
                 shader.set_param( "bloomAmount", 1.0/6.0 );
-                // Bloom Type -=- 0.0 = Normal, 1.0 = additive
-                shader.set_param( "additive_bloom", 1.0 );
+                // Bloom On/Off -=- 0.0 = off, 1.0 = on
+                shader.set_param( "bloom_on", 0.0 );
                 
                 // Standard Shader stuff. Can probably send image.width to shader
                 shader.set_param( "color_texture_sz", 640, 480 );
