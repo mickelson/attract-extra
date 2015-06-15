@@ -5,15 +5,6 @@
 // Some serious editing done by Luke-Nukem. Added CRT shape controls from CRT-Geom shader.
 // Various format cleanup.
 //
-// This is more along the style of a really good CGA arcade monitor.
-// With RGB inputs instead of NTSC.
-// The shadow mask example has the mask rotated 90 degrees for less chromatic aberration.
-//
-// Left it unoptimized to show the theory behind the algorithm.
-//
-// It is an example what I personally would want as a display option for pixel art games.
-// Please take and use, change, or whatever.
-//
 // FOR CRT GEOM
 #define FIX(c) max(abs(c), 1e-5);
 #define TEX2D(c) texture2D(mpass_texture, (c)).rgb
@@ -28,12 +19,14 @@ uniform float R;
 uniform float cornersize;
 uniform float cornersmooth;
 
+uniform float aperature_type;
+
 //Comment these out to disable the corresponding effect.
 #define CURVATURE // CRT Screen Shape
 #define YUV // Saturation and Tint
 #define GAMMA_CONTRAST_BOOST //Expands contrast and makes image brighter but causes clipping.
-#define ORIGINAL_SCANLINES //Enable to use the original scanlines.
-#define ORIGINAL_HARDPIX //Enable to use the original hardPix calculation.  But systems rendered in lower res textures will be much blurrier than systems in higher resolution textures (compare NES and TG16...)
+//#define ORIGINAL_SCANLINES //Enable to use the original scanlines.
+//#define ORIGINAL_HARDPIX //Enable to use the original hardPix calculation.  But systems rendered in lower res textures will be much blurrier than systems in higher resolution textures (compare NES and TG16...)
 
 // Filter Variables
 uniform float hardScan;
@@ -168,20 +161,57 @@ vec3 Tri(vec2 pos)
   return a * wa + b * wb + c * wc;
 }
 	
-// Shadow mask.
 vec3 Mask(vec2 pos)
 {
-  pos.x += pos.y * 3.0;
-  vec3 mask = vec3(maskDark);
-  pos.x = fract(pos.x / 6.0);
-  if (pos.x < 0.333)
-      mask.r = maskLight;
-  else if (pos.x < 0.666)
-      mask.g = maskLight;
-  else 
-      mask.b = maskLight;
-  return mask;
-}    
+    // Very compressed TV style shadow mask.
+    if (aperature_type == 1.0)
+    {
+        float line = maskLight;
+        float odd = 0.0;
+        if (fract(pos.x / 6.0) < 0.5)
+            odd = 1.0;
+        if (fract((pos.y+odd) / 2.0) < 0.5)
+            line = maskDark;  
+        pos.x = fract(pos.x / 3.0);
+        vec3 mask = vec3(maskDark, maskDark, maskDark);
+        if (pos.x < 0.333)
+            mask.r = maskLight;
+        else if (pos.x<0.666)
+            mask.g = maskLight;
+        else 
+            mask.b = maskLight;
+        mask *= line;
+        return mask;
+    }
+    // Aperture-grille.
+    else if (aperature_type == 2.0)
+    {
+        pos.x = fract(pos.x / 3.0);
+        vec3 mask = vec3(maskDark, maskDark, maskDark);
+        if (pos.x < 0.333)
+            mask.r = maskLight;
+        else if (pos.x < 0.666)
+            mask.g = maskLight;
+        else 
+            mask.b = maskLight;
+        return mask;
+    }
+    // VGA style shadow mask.
+    else
+    {
+        pos.xy = floor(pos.xy * vec2(1.0, 0.5));
+        pos.x += pos.y * 3.0;
+        vec3 mask = vec3(maskDark, maskDark, maskDark);
+        pos.x = fract(pos.x / 6.0);
+        if (pos.x<0.333)
+            mask.r = maskLight;
+        else if (pos.x < 0.666)
+            mask.g = maskLight;
+        else 
+            mask.b = maskLight;
+        return mask;
+    }
+}   
 ///////////////////////////////////////////////////////////////
 /// CRT GEOM FUNCTIONS ///
 // GIVES THE CURVE
