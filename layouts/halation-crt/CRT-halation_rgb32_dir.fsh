@@ -7,14 +7,13 @@
 // With RGB inputs instead of NTSC.
 // The shadow mask example has the mask rotated 90 degrees for less chromatic aberration.
 //
-// Left it unoptimized to show the theory behind the algorithm.
-//
-// It is an example what I personally would want as a display option for pixel art games.
-// Please take and use, change, or whatever.
-//
 // Converted to MAME and AttractMode FE by Luke-Nukem (admin@garagearcades.co.nz)
 //  http://www.garagearcades.co.nz
-//
+#define YUV
+#define GAMMA_CONTRAST_BOOST
+#pragma optimize (on)
+#pragma debug (off)
+
 // FOR CRT GEOM
 #define FIX(c) max(abs(c), 1e-5);
 #define TEX2D(c) texture2D(mpass_texture, (c)).rgb
@@ -37,9 +36,25 @@ uniform float hardPix;
 // Bloom Variables
 uniform float hardBloomScan;
 uniform float bloomAmount;
+// YUV Variables
+uniform float saturation;
+uniform float tint;
+// GAMMA Variables
+uniform float blackClip;
+uniform float brightMult;
 
 uniform float aperature_type;
-uniform float additive_bloom;
+uniform float bloom_on;
+
+const vec3 gammaBoost = vec3(1.0/1.2, 1.0/1.2, 1.0/1.2);//An extra per channel gamma adjustment applied at the end.
+
+//Here are the Tint/Saturation/GammaContrastBoost Variables.  Comment out "#define YUV" and "#define GAMMA_CONTRAST_BOOST" to disable these altogether.
+const float PI = 3.1415926535;
+float U = cos(tint*PI/180.0);
+float W = sin(tint*PI/180.0);
+vec3  YUVr=vec3( 0.701 * saturation * U + 0.16774 * saturation * W + 0.299,0.587 - 0.32931 * saturation * W - 0.587 * saturation * U, -0.497 * saturation * W - 0.114 * saturation * U + 0.114);
+vec3  YUVg=vec3(-0.3281* saturation * W - 0.299 * saturation * U + 0.299,0.413 * saturation * U + 0.03547 * saturation * W + 0.587, 0.114 + 0.29265 * saturation * W - 0.114 * saturation * U);
+vec3  YUVb=vec3( 0.299 + 1.24955 * saturation * W - 0.299 * saturation * U, -1.04634 * saturation * W - 0.587 * saturation * U + 0.587, 0.886 * saturation * U - 0.20321 * saturation * W + 0.114);
 
 //------------------------------------------------------------------------
 // Linear to sRGB.
@@ -197,12 +212,12 @@ float Bar(float pos,float bar)
     return pos * pos < 4.0 ? 0.0 : 1.0;
 }
 
-/// CRT GEOMETRY SECTION ///////////////////////////////////////////////
 float intersect(vec2 xy)
 {
   float A = dot(xy,xy) + 1.0;
   return (R - sqrt( (-R)*(-R) - 4.0 * A * (R*pictureScale) ) ) / (2.0 * A);
 }
+
 vec2 bkwtrans(vec2 xy)
 {
   float c = intersect(xy);
@@ -236,17 +251,18 @@ void main(void)
 {
     vec2 pos = transform(texCoord); // Curvature
     float cval = corner(pos); // Corners
-    if (additive_bloom == 0.0)
-    {
-        gl_FragColor.rgb = Tri(pos) * Mask(gl_FragCoord.xy);
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, Bloom(pos), bloomAmount) * vec3(cval);
-    }
-    else
-    {
-        gl_FragColor.rgb = Tri(pos) * Mask(gl_FragCoord.xy);
+    gl_FragColor.rgb = Tri(pos) * Mask(gl_FragCoord.xy);
+    if (bloom_on == 1.0){
         gl_FragColor.rgb += Bloom(pos) * bloomAmount;
-        gl_FragColor.rgb *= vec3(cval);
     }
+    gl_FragColor.rgb *= vec3(cval);
     gl_FragColor.a = 1.0;
     gl_FragColor.rgb = ToSrgb(gl_FragColor.rgb);
+#ifdef YUV
+    gl_FragColor.rgb = vec3(dot(YUVr,gl_FragColor.rgb), dot(YUVg,gl_FragColor.rgb), dot(YUVb,gl_FragColor.rgb));
+    gl_FragColor.rgb = clamp(ToSrgb(gl_FragColor.rgb), 0.0, 1.0);
+#endif
+#ifdef GAMMA_CONTRAST_BOOST
+  gl_FragColor.rgb=brightMult*pow(gl_FragColor.rgb,gammaBoost )-vec3(blackClip);
+#endif
 }
