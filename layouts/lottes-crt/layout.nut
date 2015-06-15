@@ -18,11 +18,11 @@ local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-lottes.vsh", "CRT-l
                 // Hardness of Scanline -8.0 = soft -16.0 = medium
                 shader.set_param( "hardScan", -10.0 );
                 // Hardness of pixels in scanline -2.0 = spoft, -4.0 = hard
-                shader.set_param( "hardPix", -4.0 );
+                shader.set_param( "hardPix", -2.3 );
                 //Sets how dark a "dark subpixel" is in the aperture pattern.
                 shader.set_param( "maskDark", 0.4 );
                 //Sets how dark a "bright subpixel" is in the aperture pattern
-                shader.set_param( "maskLight", 1.8 );
+                shader.set_param( "maskLight", 1.3 );
                 // 1.0 is normal saturation. Increase as needed.
                 shader.set_param( "saturation", 1..25 );
                 //0.0 is 0.0 degrees of Tint. Adjust as needed.

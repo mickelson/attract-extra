@@ -17,6 +17,11 @@
 // FOR CRT GEOM
 #define FIX(c) max(abs(c), 1e-5);
 #define TEX2D(c) texture2D(mpass_texture, (c)).rgb
+//Normal MAME GLSL Uniforms
+uniform sampler2D mpass_texture;
+uniform vec2      color_texture_sz;         // size of color_texture
+uniform vec2      color_texture_pow2_sz;    // size of color texture rounded up to power of 2
+
 varying vec2 texCoord;
 uniform vec2 aspect;
 uniform float R;
@@ -27,13 +32,8 @@ uniform float cornersmooth;
 #define CURVATURE // CRT Screen Shape
 #define YUV // Saturation and Tint
 #define GAMMA_CONTRAST_BOOST //Expands contrast and makes image brighter but causes clipping.
-//#define ORIGINAL_SCANLINES //Enable to use the original scanlines.
-//#define ORIGINAL_HARDPIX //Enable to use the original hardPix calculation.  But systems rendered in lower res textures will be much blurrier than systems in higher resolution textures (compare NES and TG16...)
-
-//Normal MAME GLSL Uniforms
-uniform sampler2D mpass_texture;
-uniform vec2      color_texture_sz;         // size of color_texture
-uniform vec2      color_texture_pow2_sz;    // size of color texture rounded up to power of 2
+#define ORIGINAL_SCANLINES //Enable to use the original scanlines.
+#define ORIGINAL_HARDPIX //Enable to use the original hardPix calculation.  But systems rendered in lower res textures will be much blurrier than systems in higher resolution textures (compare NES and TG16...)
 
 // Filter Variables
 uniform float hardScan;
@@ -242,4 +242,5 @@ void main(void)
 #ifdef GAMMA_CONTRAST_BOOST
   gl_FragColor.rgb=brightMult*pow(gl_FragColor.rgb,gammaBoost )-vec3(blackClip);
 #endif
+  gl_FragColor.a = 1.0;
 }
