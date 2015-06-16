@@ -16,45 +16,15 @@ class UserConfig {
 	
 	</ label="Title Shader", help="Choose a shader for the title", options="Pixel,Scanlines,Bloom,None" />
 	titShader="Bloom";
-
-	</ label="Screen Size", help="Select the screen size", options="1360x768,1280x1024,1280x768,1280x720" />
-	screenSize="1280x720";
-        
-        </ label="Saved Rotation", help="None, Right, Flip, Left", options="None,Left,Flip,Right,Disabled" />
-        saved_rotation="0";
 }
 
 local layoutSettings = fe.get_config();
-//Do rotation first
-switch (layoutSettings["saved_rotation"])
-{
-    case "None":
-        fe.layout.toggle_rotation = RotateScreen.None;
-        break;
-    case "Left":
-        fe.layout.toggle_rotation = RotateScreen.Right;
-        break;
-    case "Flip":
-        fe.layout.toggle_rotation = RotateScreen.Flip;
-        break;
-    case "Right":
-        fe.layout.toggle_rotation = RotateScreen.Left;
-        break;
-    case "Disabled":
-        break;
-}
-local actual_rotation = (fe.layout.base_rotation + fe.layout.toggle_rotation)%4;
 
 // Globals
-list_X <- 10;	
-list_Y <- 0;
-title_X <- (fe.layout.width / 150);
-title_Y <- 0;
 titleSize <- 42;
 wheel_Y <- 0;
 wheelScale <- 1.5;
 wheelShadowOffset <- 8;
-wheelXDiviser <- 0;
 wheelArt <- (layoutSettings["title_art"]);
 
 function setDimensions(x,y)
@@ -63,50 +33,9 @@ function setDimensions(x,y)
     fe.layout.height = y;
 }
 
-print("Rotation = "+actual_rotation);
-if (( actual_rotation == RotateScreen.Left ) || ( actual_rotation == RotateScreen.Right ))
-{
-    switch (layoutSettings["screenSize"])
-    {
-    case "1360x768": 
-        setDimensions(768,1360);
-        break;
-    case "1280x1024":
-        setDimensions(1024,1280);
-        break;
-    case "1280x768": 
-        setDimensions(768,1280);
-        break;
-    case "1280x720": 
-        setDimensions(720,1280);
-        break;
-    }
-    title_Y = (fe.layout.height / 1.08);
-    wheel_Y = (fe.layout.height / 1.20);
-    wheelXDiviser = 2.8;
-}
-else
-{
-    switch (layoutSettings["screenSize"])
-    {
-    case "1360x768": 
-        setDimensions(1360,768);
-        break;
-    case "1280x1024":
-        setDimensions(1280,1024);
-        break;
-    case "1280x768": 
-        setDimensions(1280,768);
-        break;
-    case "1280x720": 
-        setDimensions(1280,720);
-        break;
-    }
-    title_Y = (fe.layout.height / 1.10);
-    wheel_Y = (fe.layout.height / 1.33);
-    wheelXDiviser = 2.4;
-}
-	
+orig_width <- fe.layout.width;
+orig_height <- fe.layout.height;
+
 // Shader Setup
 local noShader = fe.add_shader( Shader.Empty );
 videoShader <- noShader;
@@ -187,6 +116,73 @@ video.set_rgb (255,255,255);
 video.preserve_aspect_ratio = true;
 video.shader = videoShader;
 
-//Drwa order can be changed via reordering of running scripts.
-fe.do_nut("wheel.nut");
 fe.do_nut("text.nut");
+fe.do_nut("wheel.nut");
+
+function do_roll()
+{
+    videoShadow.width = (fe.layout.width - 20);
+    videoShadow.x = (fe.layout.width / 2 - 5) - ( videoShadow.width / 2);
+    videoShadow.y = (fe.layout.height / 2 - 5) - ( videoShadow.height / 2);
+    video.width = videoShadow.width;
+    video.set_pos(videoShadow.x+6,videoShadow.y+6);
+    wheel_Y = (fe.layout.height / 1.20);
+    wheelUpdate();
+    gameTitleShadow.y = (fe.layout.height - 73);
+    gameTitleShadow.x = (fe.layout.width / 2) - (gameTitleShadow.width / 2);
+    gameTitle.y = (fe.layout.height - 70);
+    gameTitle.x = (fe.layout.width / 2 - 5) - ( gameTitle.width / 2 - 5);
+    romListSurf.y = 5;
+    romListSurf.x = (fe.layout.width / 2 - 5) - ( gameTitle.width / 2 - 5);
+}
+function do_norm()
+{
+    videoShadow.width = (fe.layout.width - 20);
+    videoShadow.x = (fe.layout.width / 2 - 5) - ( videoShadow.width / 2);
+    videoShadow.y = (fe.layout.height / 2 - 5) - ( videoShadow.height / 2);
+    video.width = videoShadow.width;
+    video.set_pos(videoShadow.x+6,videoShadow.y+6);
+    wheel_Y = (fe.layout.height / 1.33);
+    wheelUpdate();
+    gameTitleShadow.y = (fe.layout.height - 73);
+    gameTitleShadow.x = (fe.layout.width / 2) - (gameTitleShadow.width / 2);
+    gameTitle.y = (fe.layout.height - 70);
+    gameTitle.x = (fe.layout.width / 2 - 5) - ( gameTitle.width / 2 - 5);
+    romListSurf.y = 5;
+    romListSurf.x = (fe.layout.width / 2 - 5) - ( gameTitle.width / 2 - 5);
+}
+
+function orientation( the_string )
+{
+    if (the_string == "toggle_rotate_right")
+    {
+        print("Switching layout rolled\n");
+        fe.layout.height = orig_width;
+        fe.layout.width = orig_height;
+        fe.layout.toggle_rotation = RotateScreen.Right;
+        do_roll();
+        return true;
+    }
+    if (the_string == "toggle_rotate_left")
+    {
+        print("Switching layout rolled\n");
+        fe.layout.height = orig_width;
+        fe.layout.width = orig_height;
+        fe.layout.toggle_rotation = RotateScreen.Left;
+        do_roll();
+        return true;
+    }
+    if (the_string == "toggle_flip")
+    {
+        print("Switching layout normal\n");
+        fe.layout.height = orig_height;
+        fe.layout.width = orig_width;
+        fe.layout.toggle_rotation = RotateScreen.None;
+        do_norm();
+        return true;
+    }
+    return false;
+}
+
+do_norm();
+fe.add_signal_handler("orientation");

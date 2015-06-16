@@ -18,12 +18,12 @@ listPosition.align = Align.Centre;
 listPosition.style = Style.Bold;
 
 // Game title block
-gameTitleShadow <- fe.add_text( "[Title] ([Year])", title_X, title_Y, fe.layout.width, titleSize );
+gameTitleShadow <- fe.add_text( "[Title] ([Year])", 0, fe.layout.height - 73, fe.layout.width, titleSize );
 gameTitleShadow.align = Align.Centre;
 gameTitleShadow.style = Style.Bold;
 gameTitleShadow.set_rgb (0,0,0);
 gameTitleShadow.alpha = 80;
-gameTitle <- fe.add_text( "[Title] ([Year])", (title_X - 2), (title_Y - 2), fe.layout.width, titleSize );
+gameTitle <- fe.add_text( "[Title] ([Year])", 0, fe.layout.height - 70, fe.layout.width, titleSize );
 gameTitle.align = Align.Centre;
 gameTitle.style = Style.Bold;
 gameTitle.alpha = 90;
