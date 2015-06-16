@@ -16,8 +16,7 @@ local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-halation.vsh", "CRT
                 // R = 15.0 | pictureScale = 0.79 == Fairly normal picture
                 // R = 10.0 | pictureScale = 0.84 == inbetween
                 // R = 5.0 | pictureScale = 0.72 == FISH BOWLSTYLE
-                shader.set_param( "R", 15.0 );
-                shader.set_param( "pictureScale", 0.79);
+                shader.set_param( "distortion", 0.1 );
                 // Size of corners
                 shader.set_param( "cornersize", 0.038 );
                 // Smoothing corners (100-1000)

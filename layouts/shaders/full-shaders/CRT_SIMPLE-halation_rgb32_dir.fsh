@@ -18,9 +18,9 @@
 #define FIX(c) max(abs(c), 1e-5);
 #define TEX2D(c) texture2D(mpass_texture, (c)).rgb
 varying vec2 texCoord;
-uniform float distortion;
-uniform float cornersize;
-uniform float cornersmooth;
+varying float distortion;
+varying float cornersize;
+varying float cornersmooth;
 
 //Normal MAME GLSL Uniforms
 uniform sampler2D mpass_texture;
@@ -28,22 +28,22 @@ uniform vec2      color_texture_sz;         // size of color_texture
 uniform vec2      color_texture_pow2_sz;    // size of color texture rounded up to power of 2
 
 // Filter Variables
-uniform float hardScan;
-uniform float maskDark;
-uniform float maskLight;
-uniform float hardPix;
+varying float hardScan;
+varying float maskDark;
+varying float maskLight;
+varying float hardPix;
 // Bloom Variables
-uniform float hardBloomScan;
-uniform float bloomAmount;
+varying float hardBloomScan;
+varying float bloomAmount;
 // YUV Variables
-uniform float saturation;
-uniform float tint;
+varying float saturation;
+varying float tint;
 // GAMMA Variables
-uniform float blackClip;
-uniform float brightMult;
+varying float blackClip;
+varying float brightMult;
 
-uniform float aperature_type;
-uniform float bloom_on;
+varying float aperature_type;
+varying float bloom_on;
 
 const vec3 gammaBoost = vec3(1.0/1.2, 1.0/1.2, 1.0/1.2);//An extra per channel gamma adjustment applied at the end.
 

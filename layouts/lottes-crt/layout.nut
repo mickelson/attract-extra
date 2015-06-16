@@ -12,10 +12,7 @@ local shader = fe.add_shader( Shader.VertexAndFragment, "CRT-lottes.vsh", "CRT-l
                 // 1.0 = Very compressed TV style shadow mask.
                 // 2.0 = Aperture-grille.
                 shader.set_param( "aperature_type", 2.0 );
-                // aspect ratio
-                shader.set_param( "aspect", 1.0, 0.9 );
-                // Radius of curvature
-                shader.set_param( "R", 4.0 );
+                shader.set_param( "distortion", 0.1 );
                 // Size of corners
                 shader.set_param( "cornersize", 0.038 );
                 // Smoothing corners (100-1000)

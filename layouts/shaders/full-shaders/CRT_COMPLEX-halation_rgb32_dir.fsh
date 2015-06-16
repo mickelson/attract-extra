@@ -1,15 +1,4 @@
-//
-// PUBLIC DOMAIN CRT STYLED SCAN-LINE SHADER
-//
-//   by Timothy Lottes
-//
-// This is more along the style of a really good CGA arcade monitor.
-// With RGB inputs instead of NTSC.
-// The shadow mask example has the mask rotated 90 degrees for less chromatic aberration.
-//
-// Converted to MAME and AttractMode FE by Luke-Nukem (admin@garagearcades.co.nz)
-//  http://www.garagearcades.co.nz
-//#define YUV
+#define YUV
 #define GAMMA_CONTRAST_BOOST
 #pragma optimize (on)
 #pragma debug (off)
@@ -18,9 +7,18 @@
 #define FIX(c) max(abs(c), 1e-5);
 #define TEX2D(c) texture2D(mpass_texture, (c)).rgb
 varying vec2 texCoord;
-uniform float distortion;
-uniform float cornersize;
-uniform float cornersmooth;
+varying vec2 overscan;
+varying vec2 aspect;
+
+varying float d;
+varying float R;
+
+varying float cornersize;
+varying float cornersmooth;
+
+varying vec3 stretch;
+varying vec2 sinangle;
+varying vec2 cosangle;
 
 //Normal MAME GLSL Uniforms
 uniform sampler2D mpass_texture;
@@ -28,22 +26,22 @@ uniform vec2      color_texture_sz;         // size of color_texture
 uniform vec2      color_texture_pow2_sz;    // size of color texture rounded up to power of 2
 
 // Filter Variables
-uniform float hardScan;
-uniform float maskDark;
-uniform float maskLight;
-uniform float hardPix;
+varying float hardScan;
+varying float maskDark;
+varying float maskLight;
+varying float hardPix;
 // Bloom Variables
-uniform float hardBloomScan;
-uniform float bloomAmount;
+varying float hardBloomScan;
+varying float bloomAmount;
 // YUV Variables
-uniform float saturation;
-uniform float tint;
+varying float saturation;
+varying float tint;
 // GAMMA Variables
-uniform float blackClip;
-uniform float brightMult;
+varying float blackClip;
+varying float brightMult;
 
-uniform float aperature_type;
-uniform float bloom_on;
+varying float aperature_type;
+varying float bloom_on;
 
 const vec3 gammaBoost = vec3(1.0/1.2, 1.0/1.2, 1.0/1.2);//An extra per channel gamma adjustment applied at the end.
 
@@ -205,18 +203,43 @@ vec3 Mask(vec2 pos)
 }
 
 /// CRT GEOMETRY SECTION ///////////////////////////////////////////////
-vec2 radialDistortion(vec2 coord) {
-    coord *= color_texture_pow2_sz / color_texture_sz;
-    vec2 cc = coord - vec2(0.5);
-    float dist = dot(cc, cc) * distortion;
-    return (coord + cc * (1.0 + dist) * dist) * color_texture_sz / color_texture_pow2_sz;
+float intersect(vec2 xy)
+{
+  float A = dot(xy,xy)+d*d;
+  float B = 2.0*(R*(dot(xy,sinangle)-d*cosangle.x*cosangle.y)-d*d);
+  float C = d*d + 2.0*R*d*cosangle.x*cosangle.y;
+  return (-B-sqrt(B*B-4.0*A*C))/(2.0*A);
+}
+
+vec2 bkwtrans(vec2 xy)
+{
+  float c = intersect(xy);
+  vec2 point = vec2(c)*xy;
+  point -= vec2(-R)*sinangle;
+  point /= vec2(R);
+  vec2 tang = sinangle/cosangle;
+  vec2 poc = point/cosangle;
+  float A = dot(tang,tang)+1.0;
+  float B = -2.0*dot(poc,tang);
+  float C = dot(poc,poc)-1.0;
+  float a = (-B+sqrt(B*B-4.0*A*C))/(2.0*A);
+  vec2 uv = (point-a*sinangle)/cosangle;
+  float r = FIX(R*acos(a));
+  return uv*r/sin(r/R);
+}
+
+vec2 transform(vec2 coord)
+{
+  coord *= color_texture_pow2_sz / color_texture_sz;
+  coord = (coord-vec2(0.5))*aspect*stretch.z+stretch.xy;
+  return (bkwtrans(coord)/overscan/aspect+vec2(0.5)) * color_texture_sz / color_texture_pow2_sz;
 }
 
 float corner(vec2 coord)
 {
   coord *= color_texture_pow2_sz / color_texture_sz;
-  coord = (coord - vec2(0.5)) + vec2(0.5);
-  coord = min(coord, vec2(1.0)-coord);
+  coord = (coord - vec2(0.5)) * overscan + vec2(0.5);
+  coord = min(coord, vec2(1.0)-coord) * aspect;
   vec2 cdist = vec2(cornersize);
   coord = (cdist - min(coord,cdist));
   float dist = sqrt(dot(coord,coord));
@@ -227,9 +250,9 @@ float corner(vec2 coord)
 // Entry.
 void main(void)
 {
-    vec2 pos = radialDistortion(texCoord); // Curvature
-    //gl_FragColor.rgb *= vec3(corner(pos));
-    gl_FragColor.rgb = Tri(pos) * Mask(gl_FragCoord.xy) * vec3(corner(pos));
+    vec2 pos = transform(texCoord); // Curvature
+    float cval = corner(pos);
+    gl_FragColor.rgb = Tri(pos) * Mask(gl_FragCoord.xy) * vec3(cval);
     if (bloom_on == 1.0){
         gl_FragColor.rgb += Bloom(pos) * bloomAmount;
     }

@@ -1,0 +1,29 @@
+# OpenGL-SPECIFIC OPTIONS
+#
+gl_forcepow2texture       1
+gl_notexturerect          1
+gl_vbo                    1
+gl_pbo                    1
+gl_glsl                   1
+gl_glsl_filter            0
+glsl_shader_mame0         /home/luke/.mame/osd/full-shaders/pass
+glsl_shader_mame1         /home/luke/.mame/osd/full-shaders/CRT-lottes
+glsl_shader_mame2         none
+glsl_shader_mame3         none
+glsl_shader_mame4         none
+glsl_shader_mame5         none
+glsl_shader_mame6         none
+glsl_shader_mame7         none
+glsl_shader_mame8         none
+glsl_shader_mame9         none
+# Good for full screen shading only. Do after any main image tweaks.
+glsl_shader_screen0       /home/luke/.mame/osd/screen-shaders/bloom
+glsl_shader_screen1       /home/luke/.mame/osd/screen-shaders/blur_y
+glsl_shader_screen2       /home/luke/.mame/osd/screen-shaders/blur_x
+glsl_shader_screen3       none
+glsl_shader_screen4       none
+glsl_shader_screen5       none
+glsl_shader_screen6       none
+glsl_shader_screen7       none
+glsl_shader_screen8       none
+glsl_shader_screen9       none 

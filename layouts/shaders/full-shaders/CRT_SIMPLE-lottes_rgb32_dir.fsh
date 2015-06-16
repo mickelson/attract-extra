@@ -24,10 +24,9 @@
 #define FIX(c) max(abs(c), 1e-5);
 #define TEX2D(c) texture2D(mpass_texture, (c)).rgb
 varying vec2 texCoord;
-uniform float aperature_type;
-uniform float distortion;
-uniform float cornersize;
-uniform float cornersmooth;
+varying float distortion;
+varying float cornersize;
+varying float cornersmooth;
 
 //Normal MAME GLSL Uniforms
 uniform sampler2D mpass_texture;
@@ -35,16 +34,16 @@ uniform vec2      color_texture_sz;         // size of color_texture
 uniform vec2      color_texture_pow2_sz;    // size of color texture rounded up to power of 2
 
 // Filter Variables
-uniform float hardScan;
-uniform float maskDark;
-uniform float maskLight;
-uniform float hardPix;
+varying float hardScan;
+varying float maskDark;
+varying float maskLight;
+varying float hardPix;
 // YUV Variables
-uniform float saturation;
-uniform float tint;
+varying float saturation;
+varying float tint;
 // GAMMA Variables
-uniform float blackClip;
-uniform float brightMult;
+varying float blackClip;
+varying float brightMult;
 const vec3 gammaBoost = vec3(1.0/1.2, 1.0/1.2, 1.0/1.2);//An extra per channel gamma adjustment applied at the end.
 
 //Here are the Tint/Saturation/GammaContrastBoost Variables.  Comment out "#define YUV" and "#define GAMMA_CONTRAST_BOOST" to disable these altogether.
@@ -170,54 +169,16 @@ vec3 Tri(vec2 pos)
 // Shadow mask.
 vec3 Mask(vec2 pos)
 {
-    // Very compressed TV style shadow mask.
-    if (aperature_type == 1.0)
-    {
-        float line = maskLight;
-        float odd = 0.0;
-        if (fract(pos.x / 6.0) < 0.5)
-            odd = 1.0;
-        if (fract((pos.y+odd) / 2.0) < 0.5)
-            line = maskDark;  
-        pos.x = fract(pos.x / 3.0);
-        vec3 mask = vec3(maskDark, maskDark, maskDark);
-        if (pos.x < 0.333)
-            mask.r = maskLight;
-        else if (pos.x<0.666)
-            mask.g = maskLight;
-        else 
-            mask.b = maskLight;
-        mask *= line;
-        return mask;
-    }
-    // Aperture-grille.
-    else if (aperature_type == 2.0)
-    {
-        pos.x = fract(pos.x / 3.0);
-        vec3 mask = vec3(maskDark, maskDark, maskDark);
-        if (pos.x < 0.333)
-            mask.r = maskLight;
-        else if (pos.x < 0.666)
-            mask.g = maskLight;
-        else 
-            mask.b = maskLight;
-        return mask;
-    }
-    // VGA style shadow mask.
-    else
-    {
-        pos.xy = floor(pos.xy * vec2(1.0, 0.5));
-        pos.x += pos.y * 3.0;
-        vec3 mask = vec3(maskDark, maskDark, maskDark);
-        pos.x = fract(pos.x / 6.0);
-        if (pos.x<0.333)
-            mask.r = maskLight;
-        else if (pos.x < 0.666)
-            mask.g = maskLight;
-        else 
-            mask.b = maskLight;
-        return mask;
-    }
+  pos.x += pos.y * 3.0;
+  vec3 mask = vec3(maskDark);
+  pos.x = fract(pos.x / 6.0);
+  if (pos.x < 0.333)
+      mask.r = maskLight;
+  else if (pos.x < 0.666)
+      mask.g = maskLight;
+  else 
+      mask.b = maskLight;
+  return mask;
 }    
 ///////////////////////////////////////////////////////////////
 /// CRT GEOM FUNCTIONS ///
@@ -242,7 +203,6 @@ float corner(vec2 coord)
 ///////////////////////////////////////////////////////////////
 void main(void)
 {
-    gl_FragColor.a = 1.0;
 #ifdef CURVATURE
   vec2 pos = radialDistortion(texCoord);//CURVATURE
   //FINAL//
