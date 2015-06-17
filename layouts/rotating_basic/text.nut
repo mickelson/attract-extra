@@ -34,8 +34,7 @@ filterName.align = Align.Right;
 
 ///////////////////////////////////////////////////
 local gameList = fe.add_listbox( 32, 64, 262, 352 );
-//gameList.charsize = 26;
-gameList.charsize = (overlay.height / 18.6);
+gameList.charsize = 26;
 gameList.set_selbg_rgb( 255, 255, 255 );
 gameList.set_sel_rgb( 0, 0, 0 );
 gameList.sel_style = Style.Bold;
