@@ -51,6 +51,7 @@ function textUpdate_Horz()
     gameList.height = (overlay_horz.height / 1.36);
     gameList.x = (overlay_horz.x + (overlay_horz.width / 20));
     gameList.y = (overlay_horz.y + (overlay_horz.height / 7.5));
+    gameList.charsize = 36;
     
     local left_X = (overlay_horz.x + (overlay_horz.width / 21));
     local left_W = (overlay_horz.width / 2);
