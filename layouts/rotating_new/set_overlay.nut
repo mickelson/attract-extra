@@ -3,7 +3,7 @@
 
 // No need to be global if we call a function for updates.
 overlay_horz <- fe.add_image( "bg_horz.png", 0, 0);
-overlay_vert <- fe.add_image( "bg_vert0.png", 0, 0);
+overlay_vert <- fe.add_image( "bg_vert.png", 0, 0);
 // overlay_vert.rotation = 90;
 
 function overlayUpdate_Horz()
