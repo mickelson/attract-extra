@@ -11,14 +11,14 @@ local wheel = fe.add_artwork( wheelArt, 0, 0);
 function wheelUpdate_Horz()
 {
     // Set wheel size.
-    //wheel.width = overlay_horz.width / 2.46 ;
+    wheel.width = overlay_horz.width / 2.46 ;
     wheel.height = overlay_horz.height / 6.72;
     // This keeps the original ratio
-    if (wheel.texture_height != 0 && wheel.texture_width != 0)
-    {
-        wheel.width = (wheel.height * (wheel.texture_height / wheel.texture_width));
-    }            
-    wheel.x = overlay_horz.x + (overlay_horz.width / 1.335) - (wheel.texture_width / 2);
+    //if (wheel.texture_height != 0 && wheel.texture_width != 0)
+    //{
+    //    wheel.width = (wheel.height * (wheel.texture_height / wheel.texture_width));
+    //}            
+    wheel.x = overlay_horz.x + (overlay_horz.width / 1.83);
     wheel.y = overlay_horz.y + (overlay_horz.height / 7.5);
     
     wheel.shader = titleShader;
@@ -27,14 +27,14 @@ function wheelUpdate_Horz()
 function wheelUpdate_Vert()
 {
     // Set wheel size.
-    //wheel.width = overlay_vert.width / 1.36 ;
+    wheel.width = overlay_vert.width / 1.36 ;
     wheel.height = overlay_vert.height / 5.25;
     // This keeps the original ratio
-    if (wheel.texture_height != 0 && wheel.texture_width != 0)
-    {
-        wheel.width = (wheel.height * (wheel.texture_height / wheel.texture_width));
-    }
-    wheel.x = overlay_vert.x + (overlay_vert.width / 2) - (wheel.texture_width / 2);
+    //if (wheel.texture_height != 0 && wheel.texture_width != 0)
+    //{
+    //    wheel.width = (wheel.height * (wheel.texture_height / wheel.texture_width));
+    //}
+    wheel.x = overlay_vert.x + (overlay_vert.width / 7.16);
     wheel.y = overlay_vert.y + (overlay_vert.height / 21.3);
     
     wheel.shader = titleShader;
