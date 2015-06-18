@@ -23,7 +23,7 @@ function overlayUpdate_Vert()
 {
     overlay_vert.width = fe.layout.width;
     // Set the width by scaling the original texture
-    overlay_vert.height = overlay_horz.width * (overlay_vert.texture_height / overlay_vert.texture_width);
+    overlay_vert.height = overlay_vert.width * (overlay_vert.texture_height / overlay_vert.texture_width);
     // Now we can set the X pos accurately. 
     // overlay_vert.width will return 0 if we didn't do the above.
     overlay_vert.x = (fe.layout.width / 2) - (overlay_vert.width / 2);
