@@ -1,0 +1,44 @@
+fe.add_ticks_callback( "tick" );
+	//
+local sw = 0;
+local r = 0;
+local g = 0;
+local b = 0;
+local startTime = 0;
+	
+function tick( ttime ) {
+	
+	if (startTime == 0)
+		startTime = ttime;		
+	
+	if (ttime - startTime > 1.5){
+		if (sw==0){
+			if (r <= 150)
+				r += 1.5 ;
+			if (g <= 200)
+				g += 1 ;
+			if (b <= 254)
+				b += 0.8 ;
+			set_bright( r, g, b, romList );
+			if (r >= 150 && g >= 200 && b >= 254){
+				//r = g = b = 255
+				sw = 1;
+			}
+		}
+		else
+		if (sw==1){
+			if (r >= 50)
+				r -= 1 ;
+			if (g >= 100)
+				g -= 0.6 ;
+			if (b >= 150)
+				b -= 1.5 ;
+			set_bright( r, g, b, romList );
+			if (r  <= 50 && g <= 100 && b <= 150){
+				//r = g = b = 100;
+				sw = 0;
+			}
+		}
+		startTime = 0;
+	}
+}

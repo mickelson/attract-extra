@@ -8,127 +8,181 @@
 ///////////////////////////////////////
 
 class UserConfig {
-	</ label="Title Artwork", help="The artwork used for the title", 
-	options="marquee,box,wheel" />
+	</ label="Title Artwork", help="The artwork used for the title", options="marquee,box,wheel" />
 	title_art="marquee";
 
-	</ label="Shaders Enabled", help="Enable Shaders on Artwork (requires shader support)", 
-	options="Yes,No" />
+	</ label="Shaders Enabled", help="Enable Shaders on Artwork (requires shader support)", options="Yes,No" />
 	enable_shaders="Yes";
 	
-	</ label="Background Shader", help="Choose a shader for the background",
-	options="Blur,Pixel,None" />
-	bgndShader="Blur";
-	
-	</ label="Video Shader", help="Choose a shader for the video",
-	options="Blur,Pixel,Scanlines,Bloom,None" />
-	vidShader="Blur";
-	
-	</ label="Title Shader", help="Choose a shader for the title",
-	options="Blur,Pixel,Scanlines,Bloom,None" />
-	titShader="Blur";
-
-	</ label="Screen Size", help="Select the screen size", 
-	options="1360x768,1280x1024,1280x768,1280x720" />
-	screenSize="1280x720";
-	
-	</ label="Screen Rotate", help="Swap X/Y dimensions for rotated screens",
-	options="Yes,No" />
-	rotated="No";
+	</ label="Title Shader", help="Choose a shader for the title", options="Pixel,Scanlines,Bloom,None" />
+	titShader="Bloom";
 }
 
 local layoutSettings = fe.get_config();
-switch (layoutSettings["screenSize"]){
-	case "1360x768":
-	switch (layoutSettings["rotated"]){
-		case "Yes": 	fe.layout.width=768; 	fe.layout.height=1360;		break;
-		case "No" :		fe.layout.width=1360;	fe.layout.height=768;		break;
-	}	break;
-	case "1280x1024":
-	switch (layoutSettings["rotated"]){
-		case "Yes": 	fe.layout.width=1024; 	fe.layout.height=1280;		break;
-		case "No" :		fe.layout.width=1280;	fe.layout.height=1024;		break;
-	}	break;
-	case "1280x768":
-	switch (layoutSettings["rotated"]){
-		case "Yes": 	fe.layout.width=768; 	fe.layout.height=1280;		break;
-		case "No" :		fe.layout.width=1280;	fe.layout.height=768;		break;
-	}	break;
-	case "1280x720":
-	switch (layoutSettings["rotated"]){
-		case "Yes": 	fe.layout.width=720; 	fe.layout.height=1280;		break;
-		case "No" :		fe.layout.width=1280;	fe.layout.height=720;		break;
-	}	break;
-}
+
 // Globals
-list_X <- 10;	
-list_Y <- 0;
-title_X <- (fe.layout.width / 150);
-title_Y <- 0;
 titleSize <- 42;
 wheel_Y <- 0;
 wheelScale <- 1.5;
 wheelShadowOffset <- 8;
-wheelXDiviser <- 0;
+wheelArt <- (layoutSettings["title_art"]);
 
-if ( layoutSettings["rotated"] == "Yes") {
-	title_Y = (fe.layout.height / 1.08);
-	wheel_Y = (fe.layout.height / 1.20);
-	wheelXDiviser = 2.8;
-	}
-else {
-	title_Y = (fe.layout.height / 1.10);
-	wheel_Y = (fe.layout.height / 1.33);
-	wheelXDiviser = 2.4;
-	}
-	
+function setDimensions(x,y)
+{
+    fe.layout.width = x;
+    fe.layout.height = y;
+}
+
+orig_width <- fe.layout.width;
+orig_height <- fe.layout.height;
+
 // Shader Setup
 local noShader = fe.add_shader( Shader.Empty );
-backGroundShader <- noShader;
 videoShader <- noShader;
 titleShader <- noShader;
 local None = noShader;
 
-if ( layoutSettings["enable_shaders"] == "Yes" ){
-	switch (layoutSettings["bgndShader"]){
-		case "Blur": 		backGroundShader=fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
-								backGroundShader.set_param("blurDark", 1.6);								break;
-		case "Pixel":		backGroundShader=fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );			
-								backGroundShader.set_param("pixelDark", 0.4);								break;
-		case "Scanlines": 	backGroundShader=fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );
-								backGroundShader.set_param("scannerDarkly", -0.5);							break;
-		case "Bloom": 		backGroundShader=fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );	break;
-		case "None": 		backGroundShader = noShader; break;
-	}
-} else backGroundShader = noShader;
-if ( layoutSettings["enable_shaders"] == "Yes" ){
-	switch (layoutSettings["vidShader"]){
-		case "Blur": 		videoShader=fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
-								videoShader.set_param("blurDark", 0.7);										break;
-		case "Pixel":		videoShader=fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );			
-								videoShader.set_param("pixelDark", 1.3);									break;
-		case "Scanlines": 	videoShader=fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );
-								videoShader.set_param("scannerDarkly", 1.2);								break;
-		case "Bloom": 		videoShader=fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );		break;
-		case "None": 		videoShader = noShader; break;
-	}
-} else videoShader = noShader;
-if ( layoutSettings["enable_shaders"] == "Yes" ){
-	switch (layoutSettings["titShader"]){
-		case "Blur": 		titleShader=fe.add_shader( Shader.Fragment, "shaders/BlurH.frag","shaders/BlurV.frag" );
-								titleShader.set_param("blurDark", 0.7);										break;
-		case "Pixel":		titleShader=fe.add_shader( Shader.Fragment, "shaders/Pixel.frag" );			
-								titleShader.set_param("pixelDark", 1.2);									break;
-		case "Scanlines": 	titleShader=fe.add_shader( Shader.Fragment, "shaders/Scanlines.frag" );			break;
-								titleShader.set_param("scannerDarkly", 1.4);								break;
-		case "Bloom": 		titleShader=fe.add_shader( Shader.Fragment, "shaders/Bloom_shader.frag" );		break;
-		case "None": 		titleShader = noShader; break;
-	}
-} else titleShader = noShader;
+if ( layoutSettings["enable_shaders"] == "Yes" )
+{
+    switch (layoutSettings["titShader"]){
+            case "Pixel": titleShader=fe.add_shader(
+                Shader.Fragment, "shaders/Pixel.frag" );
+                titleShader.set_param("pixelDark", 1.2);
+                break;
+            case "Scanlines": titleShader=fe.add_shader(
+                Shader.Fragment, "shaders/Scanlines.frag" )
+                titleShader.set_param("scannerDarkly", 1.4);
+                break;
+            case "Bloom": titleShader=fe.add_shader(
+                Shader.Fragment, "shaders/Bloom_shader.frag" );
+                break;
+            case "None": titleShader = noShader;
+                break;
+    }
+    videoShader=fe.add_shader(
+                Shader.VertexAndFragment, "shaders/CRT-halation.vsh","shaders/CRT-halation_rgb32_dir.fsh" );
+                videoShader.set_param( "ATTRACTMODE", 1 );
+                // aspect ratio
+                videoShader.set_param( "aspect", 1.0, 0.9 );
+                // Radius of curvature
+                videoShader.set_param( "R", 4.0 );
+                // Size of corners
+                videoShader.set_param( "cornersize", 0.038 );
+                // Smoothing corners (100-1000)
+                videoShader.set_param( "cornersmooth", 400.0 );
+                // Hardness of Scanline -8.0 = soft -16.0 = medium
+                videoShader.set_param( "hardScan", -10.0 );
+                // Hardness of pixels in scanline -2.0 = spoft, -4.0 = hard
+                videoShader.set_param( "hardPix", -4.0 );
+                //Sets how dark a "dark subpixel" is in the aperture pattern.
+                videoShader.set_param( "maskDark", 0.4 );
+                //Sets how dark a "bright subpixel" is in the aperture pattern
+                videoShader.set_param( "maskLight", 1.8 );
+                // BLOOM VARS //
+                // Hardness of short vertical bloom.
+                //  -1.0 = wide to the point of clipping (bad)
+                //  -1.5 = wide
+                //  -4.0 = not very wide at all
+                videoShader.set_param( "hardBloomScan", -2.0 );
+                // Hardness of short horizontal bloom.
+                //  -0.5 = wide to the point of clipping (bad)
+                //  -1.0 = wide
+                //  -2.0 = not very wide at all
+                videoShader.set_param( "hardBloomPix", -1.5 );
+                // Amount of small bloom effect.
+                //  1.0/1.0 = only bloom
+                //  1.0/16.0 = what I think is a good amount of small bloom
+                //  0.0     = no bloom
+                videoShader.set_param( "bloomAmount", 1.0/6.0 );
+                
+                // Standard Shader stuff. Can probably send image.width to shader
+                videoShader.set_param( "color_texture_sz", 640, 480 );
+                videoShader.set_param( "color_texture_pow2_sz", 640, 480 );
+                videoShader.set_texture_param( "mpass_texture" );
+}
+else
+{
+    videoShader = noShader;
+    titleShader = noShader;
+}
 
-wheelArt <- (layoutSettings["title_art"]);
+// Video overlay.
+local videoShadow = fe.add_artwork( "movie", -1, -1, fe.layout.width, fe.layout.height);
+videoShadow.set_rgb (0,0,0);
+videoShadow.preserve_aspect_ratio = true;
 
-//Drwa order can be changed via reordering of running scripts.
-fe.do_nut("video.nut");
-fe.do_nut("run.nut");
+local video = fe.add_artwork( "movie", (videoShadow.x +6), (videoShadow.y +6), (videoShadow.width -12), (videoShadow.height -12));
+video.set_rgb (255,255,255);
+video.preserve_aspect_ratio = true;
+video.shader = videoShader;
+
 fe.do_nut("text.nut");
+fe.do_nut("wheel.nut");
+
+function do_roll()
+{
+    videoShadow.width = (fe.layout.width - 20);
+    videoShadow.x = (fe.layout.width / 2 - 5) - ( videoShadow.width / 2);
+    videoShadow.y = (fe.layout.height / 2 - 5) - ( videoShadow.height / 2);
+    video.width = videoShadow.width;
+    video.set_pos(videoShadow.x+6,videoShadow.y+6);
+    wheel_Y = (fe.layout.height / 1.20);
+    wheelUpdate();
+    gameTitleShadow.y = (fe.layout.height - 73);
+    gameTitleShadow.x = (fe.layout.width / 2) - (gameTitleShadow.width / 2);
+    gameTitle.y = (fe.layout.height - 70);
+    gameTitle.x = (fe.layout.width / 2 - 5) - ( gameTitle.width / 2 - 5);
+    romListSurf.y = 5;
+    romListSurf.x = (fe.layout.width / 2 - 5) - ( gameTitle.width / 2 - 5);
+}
+function do_norm()
+{
+    videoShadow.width = (fe.layout.width - 20);
+    videoShadow.x = (fe.layout.width / 2 - 5) - ( videoShadow.width / 2);
+    videoShadow.y = (fe.layout.height / 2 - 5) - ( videoShadow.height / 2);
+    video.width = videoShadow.width;
+    video.set_pos(videoShadow.x+6,videoShadow.y+6);
+    wheel_Y = (fe.layout.height / 1.33);
+    wheelUpdate();
+    gameTitleShadow.y = (fe.layout.height - 73);
+    gameTitleShadow.x = (fe.layout.width / 2) - (gameTitleShadow.width / 2);
+    gameTitle.y = (fe.layout.height - 70);
+    gameTitle.x = (fe.layout.width / 2 - 5) - ( gameTitle.width / 2 - 5);
+    romListSurf.y = 5;
+    romListSurf.x = (fe.layout.width / 2 - 5) - ( gameTitle.width / 2 - 5);
+}
+
+function orientation( the_string )
+{
+    if (the_string == "toggle_rotate_right")
+    {
+        print("Switching layout rolled\n");
+        fe.layout.height = orig_width;
+        fe.layout.width = orig_height;
+        fe.layout.toggle_rotation = RotateScreen.Right;
+        do_roll();
+        return true;
+    }
+    if (the_string == "toggle_rotate_left")
+    {
+        print("Switching layout rolled\n");
+        fe.layout.height = orig_width;
+        fe.layout.width = orig_height;
+        fe.layout.toggle_rotation = RotateScreen.Left;
+        do_roll();
+        return true;
+    }
+    if (the_string == "toggle_flip")
+    {
+        print("Switching layout normal\n");
+        fe.layout.height = orig_height;
+        fe.layout.width = orig_width;
+        fe.layout.toggle_rotation = RotateScreen.None;
+        do_norm();
+        return true;
+    }
+    return false;
+}
+
+do_norm();
+fe.add_signal_handler("orientation");
