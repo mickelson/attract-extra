@@ -94,7 +94,7 @@ switch (layoutSettings["bloom"]){
         vidSurf.shader = shader_bloom;
         break;
 	case "No":
-        vidSurf.shader = Shader.Empty;
+        vidSurf.shader = fe.add_shader(Shader.Empty);
         break;
 }
 
